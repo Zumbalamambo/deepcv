@@ -13,14 +13,14 @@ just download the log directory into deepcv, and uncompress it locally
 
 ## Training method:
 ### method 1: fine tuning net weights from pre-trained net
-python main.py --app=yolo -c config.cfg config/yolo2/darknet-voc.cfg --transfer=./cache/log/yolo2/darknet/voc
+python main.py --app=yolo -c config.cfg config/yolo2/darknet-voc.cfg --task=train --transfer=$WEIGHTS_DRI
 ### method 2: training net weights from the beginning
-python main.py --app=yolo -c config.cfg config/yolo2/darknet-voc.cfg
+python main.py --app=yolo -c config.cfg config/yolo2/darknet-voc.cfg --task=train
 ## Running method:
 
 ### classification
 python main.py --app=mnist
 
 ### YOLO Detection
-python main.py --app=yolo --file=~/deepcv/cache/dataset/voc/test.tfrecord -c config.ini config/yolo2/darknet-20.ini
+python main.py --app=yolo -c config.ini config/yolo2/darknet-20.ini --task=detect --file=$FILE_PATH
 
