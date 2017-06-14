@@ -1,6 +1,7 @@
-import numpy as np
+import configparser
+import inspect
 import tensorflow as tf
-
+import utils.detection as util_det
 
 def initialize_global_variables(sess=None):
     assert sess is not None
@@ -12,3 +13,66 @@ def cross_entropy(logits, target, name=None, method=tf.nn.sparse_softmax_cross_e
         return tf.reduce_mean(method(logits=logits, targets=target, name=name))
     except:
         return tf.reduce_mean(method(logits=logits, labels=target, name=name))
+
+
+def summary_scalar(config):
+    try:
+        reduce = eval(config.get('summary', 'scalar_reduce'))
+        for t in util_det.match_tensor(config.get('summary', 'scalar')):
+            name = t.op.name
+            if len(t.get_shape()) > 0:
+                t = reduce(t)
+                tf.logging.warn(name + ' is not a scalar tensor, reducing by ' + reduce.__name__)
+            tf.summary.scalar(name, t)
+    except (configparser.NoSectionError, configparser.NoOptionError):
+        tf.logging.warn(inspect.stack()[0][3] + ' disabled')
+
+
+def summary_image(config):
+    try:
+        for t in util_det.match_tensor(config.get('summary', 'image')):
+            name = t.op.name
+            channels = t.get_shape()[-1].value
+            if channels not in (1, 3, 4):
+                t = tf.expand_dims(tf.reduce_sum(t, -1), -1)
+            tf.summary.image(name, t, config.getint('summary', 'image_max'))
+    except (configparser.NoSectionError, configparser.NoOptionError):
+        tf.logging.warn(inspect.stack()[0][3] + ' disabled')
+
+
+def summary_histogram(config):
+    try:
+        for t in util_det.match_tensor(config.get('summary', 'histogram')):
+            tf.summary.histogram(t.op.name, t)
+    except (configparser.NoSectionError, configparser.NoOptionError):
+        tf.logging.warn(inspect.stack()[0][3] + ' disabled')
+
+
+def summary(config):
+    summary_scalar(config)
+    summary_image(config)
+    summary_histogram(config)
+
+
+def get_optimizer(config, name):
+    section = 'optimizer_' + name
+    return {
+        'adam': lambda learning_rate: tf.train.AdamOptimizer(learning_rate, config.getfloat(section, 'beta1'),
+                                                             config.getfloat(section, 'beta2'),
+                                                             config.getfloat(section, 'epsilon')),
+        'adadelta': lambda learning_rate: tf.train.AdadeltaOptimizer(learning_rate, config.getfloat(section, 'rho'),
+                                                                     config.getfloat(section, 'epsilon')),
+        'adagrad': lambda learning_rate: tf.train.AdagradOptimizer(learning_rate, config.getfloat(section,
+                                                                                                  'initial_accumulator_value')),
+        'momentum': lambda learning_rate: tf.train.MomentumOptimizer(learning_rate,
+                                                                     config.getfloat(section, 'momentum')),
+        'rmsprop': lambda learning_rate: tf.train.RMSPropOptimizer(learning_rate, config.getfloat(section, 'decay'),
+                                                                   config.getfloat(section, 'momentum'),
+                                                                   config.getfloat(section, 'epsilon')),
+        'ftrl': lambda learning_rate: tf.train.FtrlOptimizer(learning_rate,
+                                                             config.getfloat(section, 'learning_rate_power'),
+                                                             config.getfloat(section, 'initial_accumulator_value'),
+                                                             config.getfloat(section, 'l1_regularization_strength'),
+                                                             config.getfloat(section, 'l2_regularization_strength')),
+        'gd': lambda learning_rate: tf.train.GradientDescentOptimizer(learning_rate),
+    }[name]

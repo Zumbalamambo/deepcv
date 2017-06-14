@@ -13,6 +13,12 @@ def get_cachedir(config):
     return os.path.join(basedir, 'cache')
 
 
+def get_dsdir(config):
+    basedir = os.path.expanduser(os.path.expandvars(config.get('config', 'basedir')))
+    ds_name = config.get('dataset', 'name')
+    return os.path.join(basedir, 'cache', 'dataset', ds_name)
+
+
 def get_logdir(config):
     basedir = os.path.expanduser(os.path.expandvars(config.get('config', 'basedir')))
     model = config.get('config', 'model')

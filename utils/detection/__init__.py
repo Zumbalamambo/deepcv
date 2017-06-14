@@ -26,7 +26,7 @@ def get_inference(config):
 
 def get_downsampling(config):
     model = config.get('config', 'model')
-    return getattr(importlib.import_module('.'.join([model, 'inference'])),
+    return getattr(importlib.import_module('model.detection.'+model+'.inference'),
                    config.get(model, 'inference').upper() + '_DOWNSAMPLING')
 
 
