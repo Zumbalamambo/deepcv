@@ -84,7 +84,7 @@ class Builder(yolo.Builder):
         self.args = args
         self.config = config
         with open(tfsys.get_label(config)) as f:
-            self.names = [line.strip() for line in f]
+            self.labels = [line.strip() for line in f]
 
         self.width = config.getint(section, 'width')
         self.height = config.getint(section, 'height')
@@ -93,9 +93,9 @@ class Builder(yolo.Builder):
         self.func = getattr(inference, config.get(section, 'inference'))
 
     def __call__(self, data, training=False):
-        _, self.output = self.func(data, len(self.names), len(self.anchors), training=training)
+        _, self.output = self.func(data, len(self.labels), len(self.anchors), training=training)
         with tf.name_scope(__name__.split('.')[-1]):
-            self.model = Model(self.output, len(self.names), self.anchors, training=training)
+            self.model = Model(self.output, len(self.labels), self.anchors, training=training)
 
     def create_objectives(self, labels):
         section = __name__.split('.')[-1]

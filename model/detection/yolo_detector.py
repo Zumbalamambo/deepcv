@@ -85,7 +85,7 @@ class Drawer(object):
         self.sess = sess
         self.model = model
         self.names = names
-        self.images = image
+        self.image = image
         self.labels = labels
         self.cell_width = cell_width
         self.cell_height = cell_height
@@ -102,8 +102,7 @@ class Drawer(object):
         self.ax.tick_params(labelbottom='off', labelleft='off')
         self.ax.imshow(image)
 
-        self.plots = visualize.draw_labels(self.ax, names, self.width, self.height, cell_width, cell_height,
-                                                 *labels)
+        self.plots = visualize.draw_labels(self.ax, names, self.width, self.height, cell_width, cell_height, *labels)
         self.fig.canvas.mpl_connect('button_press_event', self.onclick)
         self.colors = [prop['color'] for _, prop in zip(names, itertools.cycle(plt.rcParams['axes.prop_cycle']))]
 
@@ -111,16 +110,20 @@ class Drawer(object):
         for p in self.plots:
             p.remove()
         self.plots = []
-        ix = int(event.xdata * self.cell_width / self.width)
-        iy = int(event.ydata * self.cell_height / self.height)
+
+        height, width, _ = self.image.shape
+        ix = int(event.xdata * self.cell_width / width)
+        iy = int(event.ydata * self.cell_height / height)
         self.plots.append(self.ax.add_patch(
-            patches.Rectangle((ix * self.width / self.cell_width, iy * self.height / self.cell_height),
-                              self.width / self.cell_width, self.height / self.cell_height,
+            patches.Rectangle((ix * width / self.cell_width, iy * height / self.cell_height),
+                              width / self.cell_width, height / self.cell_height,
                               linewidth=0, facecolor='black', alpha=.2
                               )
         ))
         index = iy * self.cell_width + ix
-        prob, iou, xy_min, wh = self.sess.run([self.model.prob[0][index], self.model.iou[0][index]])
+        prob, iou, xy_min, wh = self.sess.run([self.model.prob[0][index], self.model.iou[0][index],
+                                               self.model.xy_min[0][index], self.model.wh[0][index]],
+                                              feed_dict=self.feed_dict)
         xy_min = xy_min * self.scale
         wh = wh * self.scale
         for _prob, _iou, (x, y), (w, h), color in zip(prob, iou, xy_min, wh, self.colors):
@@ -132,115 +135,6 @@ class Drawer(object):
             self.plots.append(self.ax.add_patch(
                 patches.Rectangle((x, y), w, h, linewidth=linewidth, edgecolor=color, facecolor='none')
             ))
-            self.plots.append(self.ax.add_patch(
-                self.ax.annotate(name + '(%.1f%%, %.1f%%)' % (_iou * 100, _prob * 100), (x, y), color=color)
-            ))
+            self.plots.append(self.ax.annotate(name + '(%.1f%%, %.1f%%)' % (_iou * 100, _prob * 100),
+                                               (x, y), color=color))
         self.fig.canvas.draw()
-
-#
-# def run():
-#     model = config.get('config', 'model')
-#     yolo = importlib.import_module(model)
-#
-#     width = config.getint(model, 'width')
-#     height = config.getint(model, 'height')
-#
-#     cell_width, cell_height = det_util.calc_cell_width_height(config, width, height)
-#
-#
-#     with open(os.path.join(cachedir, 'names')) as f:
-#         names = [line.strip() for line in f]
-#
-#     file_path = os.path.expanduser(os.path.expandvars(args.path))
-#     ext_name = os.path.splitext(os.path.basename(file_path))[1]
-#
-#     with tf.Session(config=tf.ConfigProto(allow_soft_placement=True)) as sess:
-#
-#         if ext_name == '.tfrecord':
-#
-#             num_examples = sum(1 for _ in tf.python_io.tf_record_iterator(file_path))
-#             tf.logging.warn('num_examples=%d' % num_examples)
-#             file_path = [file_path]
-#             image_rgb, labels = det_util.data.load_image_labels(file_path, len(names), width, height, cell_width,
-#                                                                 cell_height, config)
-#             image_std = tf.image.per_image_standardization(image_rgb)
-#             image_rgb = tf.cast(image_rgb, tf.uint8)
-#
-#             image_placeholder = tf.placeholder(image_std.dtype, [1] + image_std.get_shape().as_list(),
-#                                                name='image_placeholder')
-#             label_placeholder = [tf.placeholder(l.dtype, [1] + l.get_shape().as_list(), name=l.op.name + '_placeholder')
-#                                  for l in labels]
-#
-#             builder = yolo.Builder(args, config)
-#             builder(image_placeholder)
-#             with tf.name_scope('total_loss') as name:
-#                 builder.create_objectives(label_placeholder)
-#                 total_loss = tf.losses.get_total_loss(name=name)
-#
-#             global_step = tf.contrib.framework.get_or_create_global_step()
-#             restore_variables = slim.get_variables_to_restore()
-#             tf.global_variables_initializer().run()
-#
-#             coord = tf.train.Coordinator()
-#             threads = tf.train.start_queue_runners(sess, coord)
-#             _image_rgb, _image_std, _labels = sess.run([image_rgb, image_std, labels])
-#             coord.request_stop()
-#             coord.join(threads)
-#
-#             model_path = tf.train.latest_checkpoint(utils.get_logdir(config))
-#             slim.assign_from_checkpoint_fn(model_path, restore_variables)(sess)
-#
-#             feed_dict = dict([(ph, np.expand_dims(d, 0)) for ph, d in zip(label_placeholder, _labels)])
-#             feed_dict[image_placeholder] = np.expand_dims(_image_std, 0)
-#
-#             _ = Drawer(sess, builder.model, builder.names, _image_rgb, _labels,
-#                        builder.model.cell_width, builder.model.cell_height, feed_dict)
-#             plt.show()
-#
-#         else:
-#             image_placeholder = tf.placeholder(tf.float32, [1, height, width, 3], name='image')
-#
-#             builder = yolo.Builder(args, config)
-#             builder(image_placeholder)
-#
-#             global_step = tf.contrib.framework.get_or_create_global_step()
-#
-#             model_path = tf.train.latest_checkpoint(utils.get_logdir(config))
-#             slim.assign_from_checkpoint_fn(model_path, tf.global_variables())(sess)
-#
-#             tf.logging.info('global_step=%d' % sess.run(global_step))
-#
-#             if os.path.isfile(file_path):
-#                 if ext_name in ['.jpg', '.png']:
-#                     detect_image(sess, builder.model, builder.names, image_placeholder, file_path)
-#                     plt.show()
-#                 elif ext_name in ['.avi', '.mp4']:
-#                     detect_video(sess, builder.model, builder.names, image_placeholder, file_path)
-#                 else:
-#                     print('No this file type')
-#             else:
-#                 pass
-#
-#
-# def main():
-#     parser = argparse.ArgumentParser()
-#     parser.add_argument('path', help='input image path')
-#     parser.add_argument('--type', default='image', help='file type')
-#     parser.add_argument('-c', '--config', nargs='+', default=['config.ini'], help='config file')
-#     parser.add_argument('-p', '--preprocess', default='std', help='the preprocess function')
-#     parser.add_argument('-t', '--threshold', type=float, default=0.3)
-#     parser.add_argument('--threshold_iou', type=float, default=0.4, help='IoU threshold')
-#     parser.add_argument('-e', '--exts', nargs='+', default=['.jpg', '.png'])
-#     parser.add_argument('-m', '--manual', type=bool, default=False, help='')
-#     parser.add_argument('--level', default='info', help='logging level')
-#     return parser.parse_args()
-#
-#
-# if __name__ == '__main__':
-#     args = main()
-#     config = configparser.ConfigParser()
-#     print(args.config)
-#     utils.load_config(config, args.config)
-#     if args.level:
-#         tf.logging.set_verbosity(args.level.upper())
-#     run()

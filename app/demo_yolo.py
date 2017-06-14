@@ -1,5 +1,6 @@
 import os
 import sys
+import importlib
 import numpy as np
 import matplotlib.pyplot as plt
 import tensorflow as tf
@@ -7,7 +8,6 @@ import tensorflow.contrib.slim as slim
 import utils.data
 import utils.tfsys as tfsys
 import utils.tfmodel as tfmodel
-import model.detection.yolo2 as yolo
 import model.detection.yolo_detector as yolo_det
 
 
@@ -28,6 +28,8 @@ def run(config, args):
     file_path = os.path.expanduser(os.path.expandvars(args.file))
     ext_name = os.path.splitext(os.path.basename(file_path))[1]
 
+    yolo = importlib.import_module('model.detection.'+model)
+
     with tf.Session(config=tf.ConfigProto(allow_soft_placement=True)) as sess:
 
         if ext_name == '.tfrecord':
@@ -47,6 +49,7 @@ def run(config, args):
 
             builder = yolo.Builder(args, config)
             builder(image_placeholder)
+
             with tf.name_scope('total_loss') as name:
                 builder.create_objectives(label_placeholder)
                 total_loss = tf.losses.get_total_loss(name=name)
@@ -67,7 +70,7 @@ def run(config, args):
             feed_dict = dict([(ph, np.expand_dims(d, 0)) for ph, d in zip(label_placeholder, _labels)])
             feed_dict[image_placeholder] = np.expand_dims(_image_std, 0)
 
-            _ = yolo_det.Drawer(sess, builder.model, builder.names, _image_rgb, _labels,
+            _ = yolo_det.Drawer(sess, builder.model, builder.labels, _image_rgb, _labels,
                                 builder.model.cell_width, builder.model.cell_height, feed_dict)
             plt.show()
 

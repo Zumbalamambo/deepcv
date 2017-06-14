@@ -21,7 +21,6 @@ def main():
     parser.add_argument('-v', '--verify', action='store_true')
     parser.add_argument('-t', '--threshold', type=float, default=0.3)
     parser.add_argument('--threshold_iou', type=float, default=0.4, help='IoU threshold')
-
     parser.add_argument('--level', default='info', help='logging level')
 
     args = parser.parse_args()
