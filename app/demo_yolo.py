@@ -7,8 +7,9 @@ import tensorflow.contrib.slim as slim
 import utils.data
 import utils.tfsys as tfsys
 import utils.tfmodel as tfmodel
-import model.detection.yolo_detector as yolo_det
 import model.detection.yolo2 as yolo
+import model.detection.yolo_detector as yolo_det
+
 
 sys.path.append('..')
 
@@ -85,10 +86,10 @@ def run(config, args):
 
             if os.path.isfile(file_path):
                 if ext_name in ['.jpg', '.png']:
-                    yolo_det.detect_image(sess, builder.model, builder.names, image_placeholder, file_path)
+                    yolo_det.detect_image(sess, builder.model, builder.names, image_placeholder, file_path, args)
                     plt.show()
                 elif ext_name in ['.avi', '.mp4']:
-                    yolo_det.detect_video(sess, builder.model, builder.names, image_placeholder, file_path)
+                    yolo_det.detect_video(sess, builder.model, builder.names, image_placeholder, file_path, args)
                 else:
                     print('No this file type')
             else:
