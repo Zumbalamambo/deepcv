@@ -2,6 +2,8 @@ import os
 import sys
 import tqdm
 import gzip
+import tarfile
+import zipfile
 import bs4
 import importlib
 import inspect
@@ -34,7 +36,6 @@ def maybe_download_and_extract(filename, working_directory, url_source, extract=
 
     if not os.path.exists(filepath):
         _download(filename, working_directory, url_source)
-        print()
         statinfo = os.stat(filepath)
         print('Succesfully downloaded', filename, statinfo.st_size, 'bytes.')
         if (not (expected_bytes is None) and (expected_bytes != statinfo.st_size)):
@@ -54,7 +55,7 @@ def maybe_download_and_extract(filename, working_directory, url_source, extract=
     return filepath
 
 
-def load_mnist_dataset(shape=(-1, 784), path="/home/sunxl/dataset/mnist"):
+def load_mnist_dataset(shape=(-1, 784), path="~/dataset/mnist"):
     # We first define functions for loading MNIST images and labels.
     # For convenience, they also download the requested files if needed.
     def load_mnist_images(path, filename):
@@ -96,29 +97,6 @@ def load_mnist_dataset(shape=(-1, 784), path="/home/sunxl/dataset/mnist"):
     y_test = np.asarray(y_test, dtype=np.int32)
 
     return X_train, y_train, X_val, y_val, X_test, y_test
-
-
-def verify_imageshape(imagepath, imageshape):
-    with Image.open(imagepath) as image:
-        return np.all(np.equal(image.size, imageshape[1::-1]))
-
-
-def verify_image_jpeg(imagepath, imageshape):
-    scope = inspect.stack()[0][3]
-    try:
-        graph = tf.get_default_graph()
-        path = graph.get_tensor_by_name(scope + '/path:0')
-        decode = graph.get_tensor_by_name(scope + '/decode_jpeg:0')
-    except KeyError:
-        tf.logging.debug('creating decode_jpeg tensor')
-        path = tf.placeholder(tf.string, name=scope + '/path')
-        imagefile = tf.read_file(path, name=scope + '/read_file')
-        decode = tf.image.decode_jpeg(imagefile, channels=3, name=scope + '/decode_jpeg')
-    try:
-        image = tf.get_default_session().run(decode, {path: imagepath})
-    except:
-        return False
-    return np.all(np.equal(image.shape[:2], imageshape[:2]))
 
 
 def check_coords(objects_coord):
@@ -164,11 +142,9 @@ def cache(config, args):
 
 def coco(writer, name_index, profile, row, verify=False):
     root = os.path.expanduser(os.path.expandvars(row['root']))
-    # year = str(row['year'])
     name = profile + '2014'
 
     anotation_path = os.path.join(root, 'annotations', 'instances_%s.json' % name)
-    # print(anotation_path)
     if not os.path.exists(anotation_path):
         tf.logging.warn(anotation_path + ' not exists')
         return False
@@ -180,7 +156,6 @@ def coco(writer, name_index, profile, row, verify=False):
     id_index = dict((cat['id'], name_index[cat['name']]) for cat in cats)
     imgIds = coco.getImgIds()
     data_path = os.path.join(root, name)
-    # print(data_path)
 
     imgs = coco.loadImgs(imgIds)
     _imgs = list(filter(lambda img: os.path.exists(os.path.join(data_path, img['file_name'])), imgs))
@@ -205,7 +180,7 @@ def coco(writer, name_index, profile, row, verify=False):
             if not verify_coords(objects_coord, imageshape):
                 tf.logging.error('failed to verify coordinates of ' + imagepath)
                 continue
-            if not verify_image_jpeg(imagepath, imageshape):
+            if not tfimage.verify_image_jpeg(imagepath, imageshape):
                 tf.logging.error('failed to decode ' + imagepath)
                 continue
         assert len(objects_class) == len(objects_coord)
@@ -223,7 +198,7 @@ def coco(writer, name_index, profile, row, verify=False):
     return True
 
 
-def load_voc_dataset(path, name_index):
+def load_voc_annotation(path, name_index):
     with open(path, 'r') as f:
         anno = bs4.BeautifulSoup(f.read(), 'xml').find('annotation')
     objects_class = []
@@ -260,7 +235,7 @@ def voc(writer, name_index, profile, row, verify=False):
         tf.logging.warn('%d of %d images not exists' % (len(annotations) - len(_annotations), len(annotations)))
     cnt_noobj = 0
     for path in tqdm.tqdm(_annotations):
-        imagename, imageshape, objects_class, objects_coord = load_voc_dataset(path, name_index)
+        imagename, imageshape, objects_class, objects_coord = load_voc_annotation(path, name_index)
         if len(objects_class) <= 0:
             cnt_noobj += 1
             continue
@@ -271,7 +246,7 @@ def voc(writer, name_index, profile, row, verify=False):
             if not verify_coords(objects_coord, imageshape):
                 tf.logging.error('failed to verify coordinates of ' + imagepath)
                 continue
-            if not verify_image_jpeg(imagepath, imageshape):
+            if not tfimage.verify_image_jpeg(imagepath, imageshape):
                 tf.logging.error('failed to decode ' + imagepath)
                 continue
         assert len(objects_class) == len(objects_coord)

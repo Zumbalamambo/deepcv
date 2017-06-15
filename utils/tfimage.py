@@ -3,6 +3,29 @@ import numpy as np
 import tensorflow as tf
 
 
+def verify_imageshape(imagepath, imageshape):
+    with Image.open(imagepath) as image:
+        return np.all(np.equal(image.size, imageshape[1::-1]))
+
+
+def verify_image_jpeg(imagepath, imageshape):
+    scope = inspect.stack()[0][3]
+    try:
+        graph = tf.get_default_graph()
+        path = graph.get_tensor_by_name(scope + '/path:0')
+        decode = graph.get_tensor_by_name(scope + '/decode_jpeg:0')
+    except KeyError:
+        tf.logging.debug('creating decode_jpeg tensor')
+        path = tf.placeholder(tf.string, name=scope + '/path')
+        imagefile = tf.read_file(path, name=scope + '/read_file')
+        decode = tf.image.decode_jpeg(imagefile, channels=3, name=scope + '/decode_jpeg')
+    try:
+        image = tf.get_default_session().run(decode, {path: imagepath})
+    except:
+        return False
+    return np.all(np.equal(image.shape[:2], imageshape[:2]))
+
+
 def per_image_standardization(image):
     stddev = np.std(image)
     return (image - np.mean(image)) / max(stddev, 1.0 / np.sqrt(np.multiply.reduce(image.shape)))

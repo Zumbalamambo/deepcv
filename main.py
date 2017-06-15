@@ -32,7 +32,7 @@ def main():
     parser.add_argument('-lr', '--learning_rate', default=1e-6, type=float, help='learning rate')
     parser.add_argument('-s', '--steps', type=int, default=None, help='max number of steps')
     parser.add_argument('--summary_secs', default=30, type=int, help='seconds to save summaries')
-    parser.add_argument('--save_secs', default=600, type=int, help='seconds to save model')
+    parser.add_argument('--save_secs', default=60, type=int, help='seconds to save model')
 
     # detection configure
     parser.add_argument('-th', '--threshold', type=float, default=0.3)
