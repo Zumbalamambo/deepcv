@@ -1,4 +1,29 @@
 import os
+import sys
+import pickle
+
+
+def unpickle(file):
+    fp = open(file, 'rb')
+    if sys.version_info.major == 2:
+        data = pickle.load(fp)
+    elif sys.version_info.major == 3:
+        # detection = pickle.load(fp,encoding='iso-8859-1')
+        data = pickle.load(fp, encoding='latin-1')
+    fp.close()
+    return data
+
+
+def exists_or_mkdir(path, verbose=True):
+    if not os.path.exists(path):
+        if verbose:
+            print("[*] creates %s ..." % path)
+        os.makedirs(path)
+        return False
+    else:
+        if verbose:
+            print("[!] %s exists ..." % path)
+        return True
 
 
 def load_config(config, paths):

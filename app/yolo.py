@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import tensorflow as tf
 import tensorflow.contrib.slim as slim
-import utils.data
+import utils.tfdata as tfdata
 import utils.tfsys as tfsys
 import utils.tfdetection as tfdet
 import model.detection.yolo_detector as yolo_det
@@ -48,8 +48,8 @@ def detect(config, args):
             num_examples = sum(1 for _ in tf.python_io.tf_record_iterator(file_path))
             tf.logging.warn('num_examples=%d' % num_examples)
             file_path = [file_path]
-            image_rgb, labels = utils.data.load_image_labels(file_path, len(names), width, height, cell_width,
-                                                             cell_height, config)
+            image_rgb, labels = tfdata.load_image_labels(file_path, len(names), width, height, cell_width,
+                                                         cell_height, config)
             image_std = tf.image.per_image_standardization(image_rgb)
             image_rgb = tf.cast(image_rgb, tf.uint8)
 

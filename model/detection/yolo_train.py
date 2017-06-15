@@ -4,7 +4,7 @@ import importlib
 import multiprocessing
 import tensorflow as tf
 import tensorflow.contrib.slim as slim
-import utils.data
+import utils.tfdata as tfdata
 import utils.tfsys as tfsys
 import utils.tftrain as tftrain
 import utils.tfdetection as tfdet
@@ -26,7 +26,7 @@ def train(config, args):
     num_examples = sum(sum(1 for _ in tf.python_io.tf_record_iterator(path)) for path in paths)
     tf.logging.warn('num_examples=%d' % num_examples)
     with tf.name_scope('batch'):
-        image_rgb, labels = utils.data.load_image_labels(paths, len(labels), width, height, cell_width, cell_height,
+        image_rgb, labels = tfdata.load_image_labels(paths, len(labels), width, height, cell_width, cell_height,
                                                          config)
         with tf.name_scope('per_image_standardization'):
             image_std = tf.image.per_image_standardization(image_rgb)

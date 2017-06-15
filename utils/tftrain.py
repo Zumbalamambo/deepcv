@@ -1,7 +1,21 @@
 import configparser
 import inspect
+import numpy as np
 import tensorflow as tf
 import utils.tfnet as tfnet
+
+
+def minibatches(inputs=None, targets=None, batch_size=None, shuffle=False):
+    assert len(inputs) == len(targets), 'the length of X,y is not same'
+    if shuffle:
+        indices = np.arange(len(inputs))
+        np.random.shuffle(indices)
+    for start_idx in range(0, len(inputs) - batch_size + 1, batch_size):
+        if shuffle:
+            excerpt = indices[start_idx:start_idx + batch_size]
+        else:
+            excerpt = slice(start_idx, start_idx + batch_size)
+        yield inputs[excerpt], targets[excerpt]
 
 
 def initialize_global_variables(sess=None):
