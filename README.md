@@ -4,7 +4,7 @@ Can we make computer vision like our eyes?
 ## Prepare data
 step1. download voc/coco data and uncompress them \
 step2. modify the deepcv/config/dataset/voc.tsv \
-step3. python main.py -app=data -c config.ini config/yolo2/darknet-20.ini \
+step3. python main.py -app=data -c config.cfg config/yolo2/darknet-voc.cfg
 
 
 ## Prepare Weights
@@ -22,5 +22,5 @@ python main.py --app=yolo -c config.cfg config/yolo2/darknet-voc.cfg --task=trai
 python main.py --app=mnist
 
 ### YOLO Detection
-python main.py --app=yolo -c config.ini config/yolo2/darknet-20.ini --task=detect --file=$FILE_PATH
+python main.py --app=yolo -c config.ini config/yolo2/darknet-voc.cfg --task=detect --file=$FILE_PATH
 
