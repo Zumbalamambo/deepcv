@@ -3,7 +3,7 @@ import numpy as np
 import tensorflow as tf
 import utils.detection as util_det
 
-import model.detection.net.yolo as inference
+import model.detection.yolo.inference
 
 
 def calc_cell_xy(cell_height, cell_width, dtype=np.float32):

@@ -3,6 +3,7 @@ import inspect
 import tensorflow as tf
 import utils.detection as util_det
 
+
 def initialize_global_variables(sess=None):
     assert sess is not None
     sess.run(tf.global_variables_initializer())
@@ -55,24 +56,46 @@ def summary(config):
 
 
 def get_optimizer(config, name):
+    '''
+    If data is sparse, recommend adaptive method like Adagrad, RMSprop, Adam.
+    Adagrad, RMSprop and Adam are similar at most time.
+    Adam add bias-correction and momentum based on RMSprop,
+    and while the gradient becomes sparse, the Adam will be better.
+
+    :param config:
+    :param name:
+    :return:
+    '''
     section = 'optimizer_' + name
-    return {
-        'adam': lambda learning_rate: tf.train.AdamOptimizer(learning_rate, config.getfloat(section, 'beta1'),
+    optimizer = {
+        'gd': lambda learning_rate: tf.train.GradientDescentOptimizer(learning_rate),
+
+        'adam': lambda learning_rate: tf.train.AdamOptimizer(learning_rate,
+                                                             config.getfloat(section, 'beta1'),
                                                              config.getfloat(section, 'beta2'),
                                                              config.getfloat(section, 'epsilon')),
-        'adadelta': lambda learning_rate: tf.train.AdadeltaOptimizer(learning_rate, config.getfloat(section, 'rho'),
+
+        'adadelta': lambda learning_rate: tf.train.AdadeltaOptimizer(learning_rate,
+                                                                     config.getfloat(section, 'rho'),
                                                                      config.getfloat(section, 'epsilon')),
-        'adagrad': lambda learning_rate: tf.train.AdagradOptimizer(learning_rate, config.getfloat(section,
-                                                                                                  'initial_accumulator_value')),
+
+        'adagrad': lambda learning_rate: tf.train.AdagradOptimizer(learning_rate,
+                                                                   config.getfloat(section, 'initial_accumulator_value')
+                                                                   ),
+
         'momentum': lambda learning_rate: tf.train.MomentumOptimizer(learning_rate,
                                                                      config.getfloat(section, 'momentum')),
-        'rmsprop': lambda learning_rate: tf.train.RMSPropOptimizer(learning_rate, config.getfloat(section, 'decay'),
+
+        'rmsprop': lambda learning_rate: tf.train.RMSPropOptimizer(learning_rate,
+                                                                   config.getfloat(section, 'decay'),
                                                                    config.getfloat(section, 'momentum'),
                                                                    config.getfloat(section, 'epsilon')),
+
         'ftrl': lambda learning_rate: tf.train.FtrlOptimizer(learning_rate,
                                                              config.getfloat(section, 'learning_rate_power'),
                                                              config.getfloat(section, 'initial_accumulator_value'),
                                                              config.getfloat(section, 'l1_regularization_strength'),
                                                              config.getfloat(section, 'l2_regularization_strength')),
-        'gd': lambda learning_rate: tf.train.GradientDescentOptimizer(learning_rate),
     }[name]
+
+    return optimizer
