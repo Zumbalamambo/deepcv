@@ -1,8 +1,7 @@
 import os
 import numpy as np
 import tensorflow as tf
-import utils.detection as util_det
-
+import utils.tfsys as tfsys
 import model.detection.yolo.inference
 
 
@@ -87,15 +86,15 @@ class Builder(object):
         section = __name__.split('.')[-1]
         self.args = args
         self.config = config
-        with open(os.path.join(util_det.get_cachedir(config), 'names'), 'r') as f:
-            self.names = [line.strip() for line in f]
+        with open(tfsys.get_label(config), 'r') as f:
+            self.labels = [line.strip() for line in f]
         self.boxes_per_cell = config.getint(section, 'boxes_per_cell')
         self.func = getattr(inference, config.get(section, 'inference'))
 
     def __call__(self, data, training=False):
-        _scope, self.output = self.func(data, len(self.names), self.boxes_per_cell, training=training)
+        _scope, self.output = self.func(data, len(self.labels), self.boxes_per_cell, training=training)
         with tf.name_scope(__name__.split('.')[-1]):
-            self.model = Model(self.output, _scope, len(self.names), self.boxes_per_cell)
+            self.model = Model(self.output, _scope, len(self.labels), self.boxes_per_cell)
 
     def create_objectives(self, labels):
         section = __name__.split('.')[-1]

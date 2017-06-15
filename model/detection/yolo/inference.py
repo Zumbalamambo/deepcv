@@ -1,7 +1,7 @@
 import inspect
 import tensorflow as tf
 import tensorflow.contrib.slim as slim
-from utils.detection.function import leaky_relu
+import utils.tfnet as tfnet
 
 
 def tiny(net, classes, boxes_per_cell, training=False):
@@ -36,7 +36,7 @@ def tiny(net, classes, boxes_per_cell, training=False):
     net = tf.identity(net, name='%s/conv' % scope)
     _, cell_height, cell_width, _ = net.get_shape().as_list()
     net = slim.layers.flatten(net, scope='%s/flatten' % scope)
-    with slim.arg_scope([slim.layers.fully_connected], activation_fn=leaky_relu,
+    with slim.arg_scope([slim.layers.fully_connected], activation_fn=tfnet.leaky_relu,
                         weights_regularizer=slim.l2_regularizer(0.001)), slim.arg_scope([slim.layers.dropout],
                                                                                         keep_prob=.5,
                                                                                         is_training=training):

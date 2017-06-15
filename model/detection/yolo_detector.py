@@ -5,9 +5,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 import tensorflow as tf
-import utils.detection.preprocess as preprocess
-import utils.detection.postprocess as postprocess
-import utils.detection.visualize as visualize
+import utils.tfvisualize as tfvisualize
+import utils.tfimage as tfimage
+import utils.tfdetection as tfdet
 
 
 def detect_image(sess, model, names, image_placeholder, image_path, args):
@@ -16,13 +16,13 @@ def detect_image(sess, model, names, image_placeholder, image_path, args):
     _image = Image.open(image_path)
     image_original = np.array(np.uint8(_image))
     image_height, image_width, _ = image_original.shape
-    image_std = preprocess.normalize_input(np.array(np.uint8(_image.resize((width, height)))).astype(np.float32))
+    image_std = tfimage.per_image_standardization(np.array(np.uint8(_image.resize((width, height)))).astype(np.float32))
 
     feed_dict = {image_placeholder: np.expand_dims(image_std, 0)}
     tensors = [model.conf, model.xy_min, model.xy_max]
     conf, xy_min, xy_max = sess.run([tf.check_numerics(t, t.op.name) for t in tensors], feed_dict=feed_dict)
 
-    boxes = postprocess.non_max_suppress(conf[0], xy_min[0], xy_max[0], args.threshold, args.threshold_iou)
+    boxes = tfdet.non_max_suppress(conf[0], xy_min[0], xy_max[0], args.threshold, args.threshold_iou)
     scale = [image_width / model.cell_width, image_height / model.cell_height]
 
     fig = plt.figure()
@@ -58,13 +58,13 @@ def detect_video(sess, model, names, image_placeholder, video_path, args):
             scale = [image_width / model.cell_width, image_height / model.cell_height]
             frame_rgb = cv2.cvtColor(frame_bgr, cv2.COLOR_BGR2RGB)
             frame_std = np.expand_dims(
-                preprocess.normalize_input(cv2.resize(frame_rgb, (width, height))).astype(np.float32), 0)
+                tfimage.per_image_standardization(cv2.resize(frame_rgb, (width, height))).astype(np.float32), 0)
 
             feed_dict = {image_placeholder: frame_std}
             tensors = [model.conf, model.xy_min, model.xy_max]
             conf, xy_min, xy_max = sess.run([tf.check_numerics(t, t.op.name) for t in tensors], feed_dict=feed_dict)
 
-            boxes = postprocess.non_max_suppress(conf[0], xy_min[0], xy_max[0], args.threshold, args.threshold_iou)
+            boxes = tfdet.non_max_suppress(conf[0], xy_min[0], xy_max[0], args.threshold, args.threshold_iou)
 
             for _conf, _xy_min, _xy_max in boxes:
                 index = np.argmax(_conf)
@@ -80,7 +80,7 @@ def detect_video(sess, model, names, image_placeholder, video_path, args):
         cv2.destroyAllWindows()
 
 
-class Drawer(object):
+class DetectImageManual(object):
     def __init__(self, sess, model, names, image, labels, cell_width, cell_height, feed_dict):
         self.sess = sess
         self.model = model
@@ -102,7 +102,7 @@ class Drawer(object):
         self.ax.tick_params(labelbottom='off', labelleft='off')
         self.ax.imshow(image)
 
-        self.plots = visualize.draw_labels(self.ax, names, self.width, self.height, cell_width, cell_height, *labels)
+        self.plots = tfvisualize.draw_labels(self.ax, names, self.width, self.height, cell_width, cell_height, *labels)
         self.fig.canvas.mpl_connect('button_press_event', self.onclick)
         self.colors = [prop['color'] for _, prop in zip(names, itertools.cycle(plt.rcParams['axes.prop_cycle']))]
 

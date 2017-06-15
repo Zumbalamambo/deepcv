@@ -81,8 +81,8 @@ def detect(config, args):
             feed_dict = dict([(ph, np.expand_dims(d, 0)) for ph, d in zip(label_placeholder, _labels)])
             feed_dict[image_placeholder] = np.expand_dims(_image_std, 0)
 
-            _ = yolo_det.Drawer(sess, builder.model, builder.labels, _image_rgb, _labels,
-                                builder.model.cell_width, builder.model.cell_height, feed_dict)
+            _ = yolo_det.DetectImageManual(sess, builder.model, builder.labels, _image_rgb, _labels,
+                                           builder.model.cell_width, builder.model.cell_height, feed_dict)
             plt.show()
 
         else:

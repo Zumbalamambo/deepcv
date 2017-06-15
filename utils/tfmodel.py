@@ -1,4 +1,5 @@
 import importlib
+import tensorflow as tf
 
 
 def get_downsampling(config):

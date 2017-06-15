@@ -1,8 +1,7 @@
 import inspect
 import tensorflow as tf
 import tensorflow.contrib.slim as slim
-from utils.detection.function import leaky_relu
-from utils.detection.function import reorg
+import utils.tfnet as tfnet
 
 
 def tiny(net, classes, num_anchors, training=False, center=True):
@@ -60,7 +59,7 @@ def darknet(net, classes, num_anchors, training=False, center=True):
     scope = __name__.split('.')[-2] + '_' + inspect.stack()[0][3]
     net = tf.identity(net, name='%s/input' % scope)
     with slim.arg_scope([slim.layers.conv2d], kernel_size=[3, 3], normalizer_fn=batch_norm,
-                        activation_fn=leaky_relu), slim.arg_scope([slim.layers.max_pool2d], kernel_size=[2, 2],
+                        activation_fn=tfnet.leaky_relu), slim.arg_scope([slim.layers.max_pool2d], kernel_size=[2, 2],
                                                                   padding='SAME'):
         index = 0
         channels = 32
@@ -107,7 +106,7 @@ def darknet(net, classes, num_anchors, training=False, center=True):
         net = slim.layers.conv2d(net, channels, scope='%s/conv%d' % (scope, index))
         index += 1
         with tf.name_scope(scope):
-            _net = reorg(passthrough)
+            _net = tfnet.reorg(passthrough)
         net = tf.concat([_net, net], 3, name='%s/concat%d' % (scope, index))
         net = slim.layers.conv2d(net, channels, scope='%s/conv%d' % (scope, index))
     net = slim.layers.conv2d(net, num_anchors * (5 + classes), kernel_size=[1, 1], activation_fn=None,

@@ -1,14 +1,13 @@
 import os
 import configparser
 import importlib
-import shutil
 import multiprocessing
 import tensorflow as tf
 import tensorflow.contrib.slim as slim
 import utils.data
 import utils.tfsys as tfsys
 import utils.tftrain as tftrain
-import utils.detection as util_det
+import utils.tfdetection as tfdet
 
 
 def train(config, args):
@@ -19,7 +18,7 @@ def train(config, args):
 
     width = config.getint(model, 'width')
     height = config.getint(model, 'height')
-    cell_width, cell_height = util_det.calc_cell_width_height(config, width, height)
+    cell_width, cell_height = tfdet.calc_cell_width_height(config, width, height)
     tf.logging.warn('(width, height)=(%d, %d), (cell_width, cell_height)=(%d, %d)' % (width, height,
                                                                                       cell_width, cell_height))
     # prepare data batch

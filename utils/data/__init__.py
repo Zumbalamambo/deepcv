@@ -1,7 +1,7 @@
 import inspect
 import numpy as np
 import tensorflow as tf
-import utils.detection.preprocess as preprocess
+import utils.tfimage as tfimage
 
 
 def data_augmentation_full(image, objects_coord, width_height, config):
@@ -11,7 +11,7 @@ def data_augmentation_full(image, objects_coord, width_height, config):
         if random_crop > 0:
             image, objects_coord, width_height = tf.cond(
                 tf.random_uniform([]) < config.getfloat(section, 'enable_probability'),
-                lambda: preprocess.random_crop(image, objects_coord, width_height, random_crop),
+                lambda: tfimage.random_crop(image, objects_coord, width_height, random_crop),
                 lambda: (image, objects_coord, width_height)
             )
     return image, objects_coord, width_height
@@ -29,7 +29,7 @@ def data_augmentation_resized(image, objects_coord, width, height, config):
     section = inspect.stack()[0][3]
     with tf.name_scope(section):
         if config.getboolean(section, 'random_flip_horizontally'):
-            image, objects_coord = preprocess.random_flip_horizontally(image, objects_coord, width)
+            image, objects_coord = tfimage.random_flip_horizontally(image, objects_coord, width)
         if config.getboolean(section, 'random_brightness'):
             image = tf.cond(
                 tf.random_uniform([]) < config.getfloat(section, 'enable_probability'),
@@ -62,7 +62,7 @@ def data_augmentation_resized(image, objects_coord, width, height, config):
             )
         grayscale_probability = config.getfloat(section, 'grayscale_probability')
         if grayscale_probability > 0:
-            image = preprocess.random_grayscale(image, grayscale_probability)
+            image = tfimage.random_grayscale(image, grayscale_probability)
     return image, objects_coord
 
 
