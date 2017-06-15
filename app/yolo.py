@@ -7,7 +7,7 @@ import tensorflow as tf
 import tensorflow.contrib.slim as slim
 import utils.data
 import utils.tfsys as tfsys
-import utils.tfmodel as tfmodel
+import utils.tfdetection as tfdet
 import model.detection.yolo_detector as yolo_det
 import model.detection.yolo_train as yolo_train
 
@@ -31,7 +31,7 @@ def detect(config, args):
     width = config.getint(model, 'width')
     height = config.getint(model, 'height')
 
-    cell_width, cell_height = tfmodel.calc_cell_width_height(config, width, height)
+    cell_width, cell_height = tfdet.calc_cell_width_height(config, width, height)
 
     with open(tfsys.get_label(config)) as f:
         names = [line.strip() for line in f]

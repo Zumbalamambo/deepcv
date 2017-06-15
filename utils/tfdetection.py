@@ -1,4 +1,5 @@
 import numpy as np
+import importlib
 
 
 def iou(xy_min1, xy_max1, xy_min2, xy_max2):
@@ -33,3 +34,18 @@ def non_max_suppress(conf, xy_min, xy_max, threshold, threshold_iou):
                 if iou(box[1], box[2], _box[1], _box[2]) >= threshold_iou:
                     _box[0][c] = 0
     return boxes
+
+
+def get_downsampling(config):
+    model = config.get('config', 'model')
+    # m_infer = 'model.detection.'+model+'.inference'
+    print('name: '+model)
+    return getattr(importlib.import_module('model.detection.'+model+'.inference'),
+                   config.get(model, 'inference').upper() + '_DOWNSAMPLING')
+
+
+def calc_cell_width_height(config, width, height):
+    downsampling_width, downsampling_height = get_downsampling(config)
+    assert width % downsampling_width == 0
+    assert height % downsampling_height == 0
+    return width // downsampling_width, height // downsampling_height
