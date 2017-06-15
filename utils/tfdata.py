@@ -12,6 +12,7 @@ import tensorflow as tf
 import utils.tfsys as tfsys
 import utils.tfimage as tfimage
 
+
 def maybe_download_and_extract(filename, working_directory, url_source, extract=False, expected_bytes=None):
     # We first define a download function, supporting both Python 2 and 3.
     def _download(filename, working_directory, url_source):
