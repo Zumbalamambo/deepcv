@@ -136,7 +136,7 @@ def cache(config, args):
 
     labels_index = dict([(name, i) for i, name in enumerate(labels)])
     dataset = [(os.path.basename(os.path.splitext(path)[0]), pandas.read_csv(os.path.expanduser(os.path.expandvars(path)))) \
-               for path in config.get('dataset','data').split(':')]
+               for path in config.get('dataset', 'data').split(':')]
 
     module = importlib.import_module('utils.data.cache')
     cache_dir = tfsys.get_cachedir(config)
@@ -150,5 +150,6 @@ def cache(config, args):
             for name, data in dataset:
                 func = getattr(module, name)
                 for i, row in data.iterrows():
+                    print(row)
                     func(writer, labels_index, profile, row, args.verify)
 

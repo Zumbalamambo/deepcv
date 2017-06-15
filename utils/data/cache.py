@@ -90,23 +90,29 @@ def voc(writer, name_index, profile, row, verify=False):
 
 def coco(writer, name_index, profile, row, verify=False):
     root = os.path.expanduser(os.path.expandvars(row['root']))
-    year = str(row['year'])
-    name = profile + year
-    path = os.path.join(root, 'annotations', 'instances_%s.json' % name)
-    if not os.path.exists(path):
-        tf.logging.warn(path + ' not exists')
+    # year = str(row['year'])
+    name = profile + '2014'
+
+    anotation_path = os.path.join(root, 'annotations', 'instances_%s.json' % name)
+    # print(anotation_path)
+    if not os.path.exists(anotation_path):
+        tf.logging.warn(anotation_path + ' not exists')
         return False
+
     import pycocotools.coco
-    coco = pycocotools.coco.COCO(path)
+    coco = pycocotools.coco.COCO(anotation_path)
     catIds = coco.getCatIds(catNms=list(name_index.keys()))
     cats = coco.loadCats(catIds)
     id_index = dict((cat['id'], name_index[cat['name']]) for cat in cats)
     imgIds = coco.getImgIds()
-    path = os.path.join(root, name)
+    data_path = os.path.join(root, name)
+    # print(data_path)
+
     imgs = coco.loadImgs(imgIds)
-    _imgs = list(filter(lambda img: os.path.exists(os.path.join(path, img['file_name'])), imgs))
+    _imgs = list(filter(lambda img: os.path.exists(os.path.join(data_path, img['file_name'])), imgs))
     if len(imgs) > len(_imgs):
         tf.logging.warn('%d of %d images not exists' % (len(imgs) - len(_imgs), len(imgs)))
+
     cnt_noobj = 0
     for img in tqdm.tqdm(_imgs):
         annIds = coco.getAnnIds(imgIds=img['id'], catIds=catIds, iscrowd=None)
@@ -114,7 +120,7 @@ def coco(writer, name_index, profile, row, verify=False):
         if len(anns) <= 0:
             cnt_noobj += 1
             continue
-        imagepath = os.path.join(path, img['file_name'])
+        imagepath = os.path.join(data_path, img['file_name'])
         width, height = img['width'], img['height']
         imageshape = [height, width, 3]
         objects_class = np.array([id_index[ann['category_id']] for ann in anns], dtype=np.int64)
@@ -136,6 +142,8 @@ def coco(writer, name_index, profile, row, verify=False):
                 bytes_list=tf.train.BytesList(value=[objects_class.tostring(), objects_coord.tostring()])),
         }))
         writer.write(example.SerializeToString())
+
     if cnt_noobj > 0:
         tf.logging.warn('%d of %d images have no object' % (cnt_noobj, len(_imgs)))
+
     return True

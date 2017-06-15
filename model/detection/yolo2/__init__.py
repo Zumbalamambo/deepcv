@@ -88,8 +88,8 @@ class Builder(yolo.Builder):
 
         self.width = config.getint(section, 'width')
         self.height = config.getint(section, 'height')
-        self.anchors = pd.read_csv(os.path.expanduser(os.path.expandvars(config.get(section, 'anchors'))),
-                                   sep='\t').values
+        self.anchors = pd.read_csv(
+            os.path.expanduser(os.path.expandvars(config.get(section, 'anchors'))), sep='\t').values
         self.func = getattr(inference, config.get(section, 'inference'))
 
     def __call__(self, data, training=False):
