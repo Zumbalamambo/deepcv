@@ -21,7 +21,7 @@ def main():
     parser.add_argument('-p', '--profile', nargs='+', default=['train', 'val'], help='')
 
     # cache data
-    parser.add_argument('-v', '--verify', action='store_true')
+    parser.add_argument('-v', '--verify', default=True, action='store_true')
 
     # training params
     parser.add_argument('-tf', '--transfer', help='transferring model from a .ckpt file')

@@ -99,170 +99,6 @@ def load_mnist_dataset(shape=(-1, 784), path="~/dataset/mnist"):
     return X_train, y_train, X_val, y_val, X_test, y_test
 
 
-def check_coords(objects_coord):
-    return np.all(objects_coord[:, 0] <= objects_coord[:, 2]) and np.all(objects_coord[:, 1] <= objects_coord[:, 3])
-
-
-def verify_coords(objects_coord, imageshape):
-    assert check_coords(objects_coord)
-    return np.all(objects_coord >= 0) and np.all(objects_coord <= np.tile(imageshape[1::-1], [2]))
-
-
-def fix_coords(objects_coord, imageshape):
-    assert check_coords(objects_coord)
-    objects_coord = np.maximum(objects_coord, np.zeros([4], dtype=objects_coord.dtype))
-    objects_coord = np.minimum(objects_coord, np.tile(np.asanyarray(imageshape[1::-1], objects_coord.dtype), [2]))
-    return objects_coord
-
-
-def cache(config, args):
-    label_file = config.get('dataset', 'label')
-    with open(label_file, 'r') as f:
-        labels = [line.strip() for line in f]
-
-    labels_index = dict([(name, i) for i, name in enumerate(labels)])
-    dataset = [(os.path.basename(os.path.splitext(path)[0]), pandas.read_csv(os.path.expanduser(os.path.expandvars(path)))) \
-               for path in config.get('dataset', 'data').split(':')]
-
-    module = importlib.import_module('utils.tfdata')
-    cache_dir = tfsys.get_cachedir(config)
-    data_dir = os.path.join(cache_dir, 'dataset', config.get('dataset', 'name'))
-    os.makedirs(data_dir, exist_ok=True)
-
-    for profile in args.profile:
-        tfrecord_file = os.path.join(data_dir, profile+'.tfrecord')
-        tf.logging.info('Write tfrecord file:' + tfrecord_file)
-        with tf.python_io.TFRecordWriter(tfrecord_file) as writer:
-            for name, data in dataset:
-                func = getattr(module, name)
-                for i, row in data.iterrows():
-                    print(row)
-                    func(writer, labels_index, profile, row, args.verify)
-
-
-def coco(writer, name_index, profile, row, verify=False):
-    root = os.path.expanduser(os.path.expandvars(row['root']))
-    name = profile + '2014'
-
-    anotation_path = os.path.join(root, 'annotations', 'instances_%s.json' % name)
-    if not os.path.exists(anotation_path):
-        tf.logging.warn(anotation_path + ' not exists')
-        return False
-
-    import pycocotools.coco
-    coco = pycocotools.coco.COCO(anotation_path)
-    catIds = coco.getCatIds(catNms=list(name_index.keys()))
-    cats = coco.loadCats(catIds)
-    id_index = dict((cat['id'], name_index[cat['name']]) for cat in cats)
-    imgIds = coco.getImgIds()
-    data_path = os.path.join(root, name)
-
-    imgs = coco.loadImgs(imgIds)
-    _imgs = list(filter(lambda img: os.path.exists(os.path.join(data_path, img['file_name'])), imgs))
-    if len(imgs) > len(_imgs):
-        tf.logging.warn('%d of %d images not exists' % (len(imgs) - len(_imgs), len(imgs)))
-
-    cnt_noobj = 0
-    for img in tqdm.tqdm(_imgs):
-        annIds = coco.getAnnIds(imgIds=img['id'], catIds=catIds, iscrowd=None)
-        anns = coco.loadAnns(annIds)
-        if len(anns) <= 0:
-            cnt_noobj += 1
-            continue
-        imagepath = os.path.join(data_path, img['file_name'])
-        width, height = img['width'], img['height']
-        imageshape = [height, width, 3]
-        objects_class = np.array([id_index[ann['category_id']] for ann in anns], dtype=np.int64)
-        objects_coord = [ann['bbox'] for ann in anns]
-        objects_coord = [(x, y, x + w, y + h) for x, y, w, h in objects_coord]
-        objects_coord = np.array(objects_coord, dtype=np.float32)
-        if verify:
-            if not verify_coords(objects_coord, imageshape):
-                tf.logging.error('failed to verify coordinates of ' + imagepath)
-                continue
-            if not tfimage.verify_image_jpeg(imagepath, imageshape):
-                tf.logging.error('failed to decode ' + imagepath)
-                continue
-        assert len(objects_class) == len(objects_coord)
-        example = tf.train.Example(features=tf.train.Features(feature={
-            'imagepath': tf.train.Feature(bytes_list=tf.train.BytesList(value=[tf.compat.as_bytes(imagepath)])),
-            'imageshape': tf.train.Feature(int64_list=tf.train.Int64List(value=imageshape)),
-            'objects': tf.train.Feature(
-                bytes_list=tf.train.BytesList(value=[objects_class.tostring(), objects_coord.tostring()])),
-        }))
-        writer.write(example.SerializeToString())
-
-    if cnt_noobj > 0:
-        tf.logging.warn('%d of %d images have no object' % (cnt_noobj, len(_imgs)))
-
-    return True
-
-
-def load_voc_annotation(path, name_index):
-    with open(path, 'r') as f:
-        anno = bs4.BeautifulSoup(f.read(), 'xml').find('annotation')
-    objects_class = []
-    objects_coord = []
-    for obj in anno.find_all('object', recursive=False):
-        for bndbox, name in zip(obj.find_all('bndbox', recursive=False), obj.find_all('name', recursive=False)):
-            if name.text in name_index:
-                objects_class.append(name_index[name.text])
-                xmin = float(bndbox.find('xmin').text) - 1
-                ymin = float(bndbox.find('ymin').text) - 1
-                xmax = float(bndbox.find('xmax').text) - 1
-                ymax = float(bndbox.find('ymax').text) - 1
-                objects_coord.append((xmin, ymin, xmax, ymax))
-            else:
-                sys.stderr.write(name.text + ' not in names')
-    size = anno.find('size')
-    return anno.find('filename').text, \
-           (int(size.find('height').text), int(size.find('width').text), int(size.find('depth').text)), \
-           objects_class, \
-           objects_coord
-
-
-def voc(writer, name_index, profile, row, verify=False):
-    root = os.path.expanduser(os.path.expandvars(row['root']))
-    path = os.path.join(root, 'ImageSets', 'Main', profile) + '.txt'
-    if not os.path.exists(path):
-        tf.logging.warn(path + ' not exists')
-        return False
-    with open(path, 'r') as f:
-        filenames = [line.strip() for line in f]
-    annotations = [os.path.join(root, 'Annotations', filename + '.xml') for filename in filenames]
-    _annotations = list(filter(os.path.exists, annotations))
-    if len(annotations) > len(_annotations):
-        tf.logging.warn('%d of %d images not exists' % (len(annotations) - len(_annotations), len(annotations)))
-    cnt_noobj = 0
-    for path in tqdm.tqdm(_annotations):
-        imagename, imageshape, objects_class, objects_coord = load_voc_annotation(path, name_index)
-        if len(objects_class) <= 0:
-            cnt_noobj += 1
-            continue
-        objects_class = np.array(objects_class, dtype=np.int64)
-        objects_coord = np.array(objects_coord, dtype=np.float32)
-        imagepath = os.path.join(root, 'JPEGImages', imagename)
-        if verify:
-            if not verify_coords(objects_coord, imageshape):
-                tf.logging.error('failed to verify coordinates of ' + imagepath)
-                continue
-            if not tfimage.verify_image_jpeg(imagepath, imageshape):
-                tf.logging.error('failed to decode ' + imagepath)
-                continue
-        assert len(objects_class) == len(objects_coord)
-        example = tf.train.Example(features=tf.train.Features(feature={
-            'imagepath': tf.train.Feature(bytes_list=tf.train.BytesList(value=[tf.compat.as_bytes(imagepath)])),
-            'imageshape': tf.train.Feature(int64_list=tf.train.Int64List(value=imageshape)),
-            'objects': tf.train.Feature(
-                bytes_list=tf.train.BytesList(value=[objects_class.tostring(), objects_coord.tostring()])),
-        }))
-        # print(example['ima'])
-        writer.write(example.SerializeToString())
-    if cnt_noobj > 0:
-        tf.logging.warn('%d of %d images have no object' % (cnt_noobj, len(filenames)))
-    return True
-
-
 def data_augmentation_full(image, objects_coord, width_height, config):
     section = inspect.stack()[0][3]
     with tf.name_scope(section):
@@ -325,6 +161,165 @@ def data_augmentation_resized(image, objects_coord, width, height, config):
     return image, objects_coord
 
 
+def cache(config, args):
+    label_file = config.get('dataset', 'label')
+    with open(label_file, 'r') as f:
+        labels = [line.strip() for line in f]
+
+    labels_index = dict([(name, i) for i, name in enumerate(labels)])
+    dataset = [(os.path.basename(os.path.splitext(path)[0]), pandas.read_csv(os.path.expanduser(os.path.expandvars(path)))) \
+               for path in config.get('dataset', 'data').split(':')]
+
+    module = importlib.import_module('utils.tfdata')
+    cache_dir = tfsys.get_cachedir(config)
+    data_dir = os.path.join(cache_dir, 'dataset', config.get('dataset', 'name'))
+    os.makedirs(data_dir, exist_ok=True)
+
+    for profile in args.profile:
+        tfrecord_file = os.path.join(data_dir, profile+'.tfrecord')
+        tf.logging.info('Write tfrecord file:' + tfrecord_file)
+        with tf.python_io.TFRecordWriter(tfrecord_file) as writer:
+            for name, data in dataset:
+                func = getattr(module, name)
+                for i, row in data.iterrows():
+                    print(row)
+                    func(writer, labels_index, profile, row, args.verify)
+
+
+def coco(writer, labels_index, profile, row, verify=True):
+    # load annotation file
+    root = os.path.expanduser(os.path.expandvars(row['root']))
+    name = profile + '2014'
+    data_dir = os.path.join(root, name)
+    annotation_path = os.path.join(root, 'annotations', 'instances_%s.json' % name)
+    print('annotation path: ' + annotation_path)
+    if not os.path.exists(annotation_path):
+        tf.logging.warn(annotation_path + ' not exists')
+        return False
+
+    import pycocotools.coco
+    coco = pycocotools.coco.COCO(annotation_path)
+    cat_ids = coco.getCatIds(catNms=list(labels_index.keys()))
+    cats = coco.loadCats(cat_ids)
+    id_index = dict((cat['id'], labels_index[cat['name']]) for cat in cats)
+    img_ids = coco.getImgIds()
+
+    imgs = coco.loadImgs(img_ids)
+    _imgs = list(filter(lambda img: os.path.exists(os.path.join(data_dir, img['file_name'])), imgs))
+
+    if len(imgs) > len(_imgs):
+        tf.logging.warn('%d of %d images not exists' % (len(imgs) - len(_imgs), len(imgs)))
+
+    cnt_noobj = 0
+    decode_error = 0
+    for img in tqdm.tqdm(_imgs):
+        ann_ids = coco.getAnnIds(imgIds=img['id'], catIds=cat_ids, iscrowd=None)
+        anns = coco.loadAnns(ann_ids)
+        if len(anns) <= 0:
+            cnt_noobj += 1
+            continue
+        image_path = os.path.join(data_dir, img['file_name'])
+        # print(image_path)
+        width, height = img['width'], img['height']
+        imageshape = [height, width, 3]
+        objects_class = np.array([id_index[ann['category_id']] for ann in anns], dtype=np.int64)
+        objects_coord = [ann['bbox'] for ann in anns]
+        objects_coord = [(x, y, x + w, y + h) for x, y, w, h in objects_coord]
+        objects_coord = np.array(objects_coord, dtype=np.float32)
+
+        if False:
+            if not tfimage.verify_coords(objects_coord, imageshape):
+                # tf.logging.error('failed to verify coordinates of ' + imagepath)
+                continue
+            if not tfimage.verify_image_jpeg(image_path, imageshape):
+                # tf.logging.error('failed to decode ' + imagepath)
+                decode_error += 1
+                continue
+
+        assert len(objects_class) == len(objects_coord)
+
+        example = tf.train.Example(features=tf.train.Features(feature={
+            'imagepath': tf.train.Feature(bytes_list=tf.train.BytesList(value=[tf.compat.as_bytes(image_path)])),
+            'imageshape': tf.train.Feature(int64_list=tf.train.Int64List(value=imageshape)),
+            'objects': tf.train.Feature(
+                bytes_list=tf.train.BytesList(value=[objects_class.tostring(), objects_coord.tostring()])),
+        }))
+        writer.write(example.SerializeToString())
+
+    if cnt_noobj > 0:
+        tf.logging.warn('%d of %d images have no object' % (cnt_noobj, len(_imgs)))
+
+    if decode_error > 0:
+        tf.logging.warn('%d of %d images decode error' % (decode_error, len(_imgs)))
+
+    return True
+
+
+def load_voc_annotation(path, name_index):
+    with open(path, 'r') as f:
+        anno = bs4.BeautifulSoup(f.read(), 'xml').find('annotation')
+    objects_class = []
+    objects_coord = []
+    for obj in anno.find_all('object', recursive=False):
+        for bndbox, name in zip(obj.find_all('bndbox', recursive=False), obj.find_all('name', recursive=False)):
+            if name.text in name_index:
+                objects_class.append(name_index[name.text])
+                xmin = float(bndbox.find('xmin').text) - 1
+                ymin = float(bndbox.find('ymin').text) - 1
+                xmax = float(bndbox.find('xmax').text) - 1
+                ymax = float(bndbox.find('ymax').text) - 1
+                objects_coord.append((xmin, ymin, xmax, ymax))
+            else:
+                sys.stderr.write(name.text + ' not in names')
+    size = anno.find('size')
+    return anno.find('filename').text, \
+           (int(size.find('height').text), int(size.find('width').text), int(size.find('depth').text)), \
+           objects_class, \
+           objects_coord
+
+
+def voc(writer, name_index, profile, row, verify=True):
+    root = os.path.expanduser(os.path.expandvars(row['root']))
+    path = os.path.join(root, 'ImageSets', 'Main', profile) + '.txt'
+    if not os.path.exists(path):
+        tf.logging.warn(path + ' not exists')
+        return False
+    with open(path, 'r') as f:
+        filenames = [line.strip() for line in f]
+    annotations = [os.path.join(root, 'Annotations', filename + '.xml') for filename in filenames]
+    _annotations = list(filter(os.path.exists, annotations))
+    if len(annotations) > len(_annotations):
+        tf.logging.warn('%d of %d images not exists' % (len(annotations) - len(_annotations), len(annotations)))
+    cnt_noobj = 0
+    for path in tqdm.tqdm(_annotations):
+        imagename, imageshape, objects_class, objects_coord = load_voc_annotation(path, name_index)
+        if len(objects_class) <= 0:
+            cnt_noobj += 1
+            continue
+        objects_class = np.array(objects_class, dtype=np.int64)
+        objects_coord = np.array(objects_coord, dtype=np.float32)
+        imagepath = os.path.join(root, 'JPEGImages', imagename)
+        if verify:
+            if not tfimage.verify_coords(objects_coord, imageshape):
+                tf.logging.error('failed to verify coordinates of ' + imagepath)
+                continue
+            if not tfimage.verify_image_jpeg(imagepath, imageshape):
+                tf.logging.error('failed to decode ' + imagepath)
+                continue
+        assert len(objects_class) == len(objects_coord)
+        example = tf.train.Example(features=tf.train.Features(feature={
+            'imagepath': tf.train.Feature(bytes_list=tf.train.BytesList(value=[tf.compat.as_bytes(imagepath)])),
+            'imageshape': tf.train.Feature(int64_list=tf.train.Int64List(value=imageshape)),
+            'objects': tf.train.Feature(
+                bytes_list=tf.train.BytesList(value=[objects_class.tostring(), objects_coord.tostring()])),
+        }))
+        # print(example['ima'])
+        writer.write(example.SerializeToString())
+    if cnt_noobj > 0:
+        tf.logging.warn('%d of %d images have no object' % (cnt_noobj, len(filenames)))
+    return True
+
+
 def transform_labels(objects_class, objects_coord, classes, cell_width, cell_height, dtype=np.float32):
     cells = cell_height * cell_width
     mask = np.zeros([cells, 1], dtype=dtype)
@@ -375,6 +370,7 @@ def decode_labels(objects_class, objects_coord, classes, cell_width, cell_height
             offset_xy_min = tf.reshape(offset_xy_min, [cells, 1, 2], name='offset_xy_min')
             offset_xy_max = tf.reshape(offset_xy_max, [cells, 1, 2], name='offset_xy_max')
             areas = tf.reshape(areas, [cells, 1], name='areas')
+
     return mask, prob, coords, offset_xy_min, offset_xy_max, areas
 
 
@@ -388,15 +384,18 @@ def decode_images(paths):
                 'imageshape': tf.FixedLenFeature([3], tf.int64),
                 'objects': tf.FixedLenFeature([2], tf.string),
             })
-        imagepath = example['imagepath']
+
+        image_path = example['imagepath']
+        with tf.name_scope('load_image'):
+            image_file = tf.read_file(image_path)
+            image = tf.image.decode_jpeg(image_file, channels=3)
+
         objects = example['objects']
         with tf.name_scope('decode_objects'):
             objects_class = tf.decode_raw(objects[0], tf.int64, name='objects_class')
             objects_coord = tf.decode_raw(objects[1], tf.float32)
             objects_coord = tf.reshape(objects_coord, [-1, 4], name='objects_coord')
-        with tf.name_scope('load_image'):
-            imagefile = tf.read_file(imagepath)
-            image = tf.image.decode_jpeg(imagefile, channels=3)
+
     return image, example['imageshape'], objects_class, objects_coord
 
 

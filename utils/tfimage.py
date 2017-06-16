@@ -1,5 +1,6 @@
 import inspect
 import numpy as np
+from PIL import Image
 import tensorflow as tf
 
 
@@ -19,11 +20,28 @@ def verify_image_jpeg(imagepath, imageshape):
         path = tf.placeholder(tf.string, name=scope + '/path')
         imagefile = tf.read_file(path, name=scope + '/read_file')
         decode = tf.image.decode_jpeg(imagefile, channels=3, name=scope + '/decode_jpeg')
+
     try:
         image = tf.get_default_session().run(decode, {path: imagepath})
     except:
         return False
     return np.all(np.equal(image.shape[:2], imageshape[:2]))
+
+
+def check_coords(objects_coord):
+    return np.all(objects_coord[:, 0] <= objects_coord[:, 2]) and np.all(objects_coord[:, 1] <= objects_coord[:, 3])
+
+
+def verify_coords(objects_coord, imageshape):
+    assert check_coords(objects_coord)
+    return np.all(objects_coord >= 0) and np.all(objects_coord <= np.tile(imageshape[1::-1], [2]))
+
+
+def fix_coords(objects_coord, imageshape):
+    assert check_coords(objects_coord)
+    objects_coord = np.maximum(objects_coord, np.zeros([4], dtype=objects_coord.dtype))
+    objects_coord = np.minimum(objects_coord, np.tile(np.asanyarray(imageshape[1::-1], objects_coord.dtype), [2]))
+    return objects_coord
 
 
 def per_image_standardization(image):
