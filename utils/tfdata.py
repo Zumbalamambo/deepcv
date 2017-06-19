@@ -197,62 +197,63 @@ def coco(writer, labels_index, profile, row, verify=True):
         tf.logging.warn(annotation_path + ' not exists')
         return False
 
-    import pycocotools.coco
-    coco = pycocotools.coco.COCO(annotation_path)
+    from pycocotools.coco import COCO
+    coco = COCO(annotation_path)
     cat_ids = coco.getCatIds(catNms=list(labels_index.keys()))
     cats = coco.loadCats(cat_ids)
     id_index = dict((cat['id'], labels_index[cat['name']]) for cat in cats)
-    img_ids = coco.getImgIds()
+    print(id_index)
+    # img_ids = coco.getImgIds()
+    #
+    # imgs = coco.loadImgs(img_ids)
+    # _imgs = list(filter(lambda img: os.path.exists(os.path.join(data_dir, img['file_name'])), imgs))
+    #
+    # if len(imgs) > len(_imgs):
+    #     tf.logging.warn('%d of %d images not exists' % (len(imgs) - len(_imgs), len(imgs)))
+    #
+    # cnt_noobj = 0
+    # decode_error = 0
+    # for img in tqdm.tqdm(_imgs):
+    #     ann_ids = coco.getAnnIds(imgIds=img['id'], catIds=cat_ids, iscrowd=None)
+    #     anns = coco.loadAnns(ann_ids)
+    #     if len(anns) <= 0:
+    #         cnt_noobj += 1
+    #         continue
+    #     image_path = os.path.join(data_dir, img['file_name'])
+    #     # print(image_path)
+    #     width, height = img['width'], img['height']
+    #     imageshape = [height, width, 3]
+    #     objects_class = np.array([id_index[ann['category_id']] for ann in anns], dtype=np.int64)
+    #     objects_coord = [ann['bbox'] for ann in anns]
+    #     objects_coord = [(x, y, x + w, y + h) for x, y, w, h in objects_coord]
+    #     objects_coord = np.array(objects_coord, dtype=np.float32)
 
-    imgs = coco.loadImgs(img_ids)
-    _imgs = list(filter(lambda img: os.path.exists(os.path.join(data_dir, img['file_name'])), imgs))
+        # if False:
+        #     if not tfimage.verify_coords(objects_coord, imageshape):
+        #         # tf.logging.error('failed to verify coordinates of ' + imagepath)
+        #         continue
+        #     if not tfimage.verify_image_jpeg(image_path, imageshape):
+        #         # tf.logging.error('failed to decode ' + imagepath)
+        #         decode_error += 1
+        #         continue
 
-    if len(imgs) > len(_imgs):
-        tf.logging.warn('%d of %d images not exists' % (len(imgs) - len(_imgs), len(imgs)))
-
-    cnt_noobj = 0
-    decode_error = 0
-    for img in tqdm.tqdm(_imgs):
-        ann_ids = coco.getAnnIds(imgIds=img['id'], catIds=cat_ids, iscrowd=None)
-        anns = coco.loadAnns(ann_ids)
-        if len(anns) <= 0:
-            cnt_noobj += 1
-            continue
-        image_path = os.path.join(data_dir, img['file_name'])
-        # print(image_path)
-        width, height = img['width'], img['height']
-        imageshape = [height, width, 3]
-        objects_class = np.array([id_index[ann['category_id']] for ann in anns], dtype=np.int64)
-        objects_coord = [ann['bbox'] for ann in anns]
-        objects_coord = [(x, y, x + w, y + h) for x, y, w, h in objects_coord]
-        objects_coord = np.array(objects_coord, dtype=np.float32)
-
-        if False:
-            if not tfimage.verify_coords(objects_coord, imageshape):
-                # tf.logging.error('failed to verify coordinates of ' + imagepath)
-                continue
-            if not tfimage.verify_image_jpeg(image_path, imageshape):
-                # tf.logging.error('failed to decode ' + imagepath)
-                decode_error += 1
-                continue
-
-        assert len(objects_class) == len(objects_coord)
-
-        example = tf.train.Example(features=tf.train.Features(feature={
-            'imagepath': tf.train.Feature(bytes_list=tf.train.BytesList(value=[tf.compat.as_bytes(image_path)])),
-            'imageshape': tf.train.Feature(int64_list=tf.train.Int64List(value=imageshape)),
-            'objects': tf.train.Feature(
-                bytes_list=tf.train.BytesList(value=[objects_class.tostring(), objects_coord.tostring()])),
-        }))
-        writer.write(example.SerializeToString())
-
-    if cnt_noobj > 0:
-        tf.logging.warn('%d of %d images have no object' % (cnt_noobj, len(_imgs)))
-
-    if decode_error > 0:
-        tf.logging.warn('%d of %d images decode error' % (decode_error, len(_imgs)))
-
-    return True
+    #     assert len(objects_class) == len(objects_coord)
+    #
+    #     example = tf.train.Example(features=tf.train.Features(feature={
+    #         'imagepath': tf.train.Feature(bytes_list=tf.train.BytesList(value=[tf.compat.as_bytes(image_path)])),
+    #         'imageshape': tf.train.Feature(int64_list=tf.train.Int64List(value=imageshape)),
+    #         'objects': tf.train.Feature(
+    #             bytes_list=tf.train.BytesList(value=[objects_class.tostring(), objects_coord.tostring()])),
+    #     }))
+    #     writer.write(example.SerializeToString())
+    #
+    # if cnt_noobj > 0:
+    #     tf.logging.warn('%d of %d images have no object' % (cnt_noobj, len(_imgs)))
+    #
+    # # if decode_error > 0:
+    # #     tf.logging.warn('%d of %d images decode error' % (decode_error, len(_imgs)))
+    #
+    # return True
 
 
 def load_voc_annotation(path, name_index):
@@ -414,6 +415,6 @@ def load_image_labels(paths, classes, width, height, cell_width, cell_height, co
         objects_coord = objects_coord / [width, height, width, height]
 
         # labels
-        labels = decode_labels(objects_class, objects_coord, classes, cell_width, cell_height)
+        label = decode_labels(objects_class, objects_coord, classes, cell_width, cell_height)
 
-    return image, labels
+    return image, label

@@ -52,7 +52,10 @@ def main():
     if args.app == 'data':
         tfdata.cache(config, args)
     elif args.app == 'mnist':
-        mnist.run(args)
+        # mnist.run(args)
+        pass
+    elif args.app == 'cifar':
+        pass
     elif args.app == 'yolo':
         yolo.run(config, args)
     else:

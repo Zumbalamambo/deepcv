@@ -9,7 +9,7 @@ def verify_imageshape(imagepath, imageshape):
         return np.all(np.equal(image.size, imageshape[1::-1]))
 
 
-def verify_image_jpeg(imagepath, imageshape):
+def verify_image_jpeg(image_path, image_shape):
     scope = inspect.stack()[0][3]
     try:
         graph = tf.get_default_graph()
@@ -18,14 +18,14 @@ def verify_image_jpeg(imagepath, imageshape):
     except KeyError:
         tf.logging.debug('creating decode_jpeg tensor')
         path = tf.placeholder(tf.string, name=scope + '/path')
-        imagefile = tf.read_file(path, name=scope + '/read_file')
-        decode = tf.image.decode_jpeg(imagefile, channels=3, name=scope + '/decode_jpeg')
+        image_file = tf.read_file(path, name=scope + '/read_file')
+        decode = tf.image.decode_jpeg(image_file, channels=3, name=scope + '/decode_jpeg')
 
     try:
-        image = tf.get_default_session().run(decode, {path: imagepath})
+        image = tf.get_default_session().run(decode, {path: image_path})
     except:
         return False
-    return np.all(np.equal(image.shape[:2], imageshape[:2]))
+    return np.all(np.equal(image.shape[:2], image_shape[:2]))
 
 
 def check_coords(objects_coord):
