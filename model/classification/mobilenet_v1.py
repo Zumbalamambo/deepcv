@@ -1,4 +1,3 @@
-
 """MobileNet v1.
 
 MobileNet is a general architecture and can be used for multiple use cases.

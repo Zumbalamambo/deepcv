@@ -13,152 +13,20 @@ from PIL import Image
 import tensorflow as tf
 import utils.tfsys as tfsys
 import utils.tfimage as tfimage
+import utils.dataset.cifar10 as cifar10
+
+'''
+# classfication dataset
+'''
 
 
-def maybe_download_and_extract(filename, working_directory, url_source, extract=False, expected_bytes=None):
-    # We first define a download function, supporting both Python 2 and 3.
-    def _download(filename, working_directory, url_source):
-        def _dlProgress(count, blockSize, totalSize):
-            if (totalSize != 0):
-                percent = float(count * blockSize) / float(totalSize) * 100.0
-                sys.stdout.write("\r" "Downloading " + filename + "...%d%%" % percent)
-                sys.stdout.flush()
+def download_covert2record(args):
 
-        if sys.version_info[0] == 2:
-            from urllib import urlretrieve
-        else:
-            from urllib.request import urlretrieve
-        filepath = os.path.join(working_directory, filename)
-        urlretrieve(url_source + filename, filepath, reporthook=_dlProgress)
-
-    tfsys.exists_or_mkdir(working_directory, verbose=False)
-    filepath = os.path.join(working_directory, filename)
-
-    if not os.path.exists(filepath):
-        _download(filename, working_directory, url_source)
-        statinfo = os.stat(filepath)
-        print('Succesfully downloaded', filename, statinfo.st_size, 'bytes.')
-        if (not (expected_bytes is None) and (expected_bytes != statinfo.st_size)):
-            raise Exception('Failed to verify ' + filename + '. Can you get to it with a browser?')
-        if (extract):
-            if tarfile.is_tarfile(filepath):
-                print('Trying to extract tar file')
-                tarfile.open(filepath, 'r').extractall(working_directory)
-                print('... Success!')
-            elif zipfile.is_zipfile(filepath):
-                print('Trying to extract zip file')
-                with zipfile.ZipFile(filepath) as zf:
-                    zf.extractall(working_directory)
-                print('... Success!')
-            else:
-                print("Unknown compression_format only .tar.gz/.tar.bz2/.tar and .zip supported")
-    return filepath
-
-
-def load_mnist_dataset(shape=(-1, 784), path="~/dataset/mnist"):
-    # We first define functions for loading MNIST images and labels.
-    # For convenience, they also download the requested files if needed.
-    def load_mnist_images(path, filename):
-        filepath = maybe_download_and_extract(filename, path, 'http://yann.lecun.com/exdb/mnist/')
-        print(filepath)
-
-        with gzip.open(filepath, 'rb') as f:
-            data = np.frombuffer(f.read(), np.uint8, offset=16)
-        data = data.reshape(shape)
-
-        return data / np.float32(256)
-
-    def load_mnist_labels(path, filename):
-        filepath = maybe_download_and_extract(filename, path, 'http://yann.lecun.com/exdb/mnist/')
-        # Read the labels in Yann LeCun's binary format.
-        with gzip.open(filepath, 'rb') as f:
-            data = np.frombuffer(f.read(), np.uint8, offset=8)
-        # The labels are vectors of integers now, that's exactly what we want.
-        return data
-
-    # Download and read the training and test set images and labels.
-    print("Load or Download MNIST > {}".format(path))
-    X_train = load_mnist_images(path, 'train-images-idx3-ubyte.gz')
-    y_train = load_mnist_labels(path, 'train-labels-idx1-ubyte.gz')
-    X_test = load_mnist_images(path, 't10k-images-idx3-ubyte.gz')
-    y_test = load_mnist_labels(path, 't10k-labels-idx1-ubyte.gz')
-
-    # We reserve the last 10000 training examples for validation.
-    X_train, X_val = X_train[:-10000], X_train[-10000:]
-    y_train, y_val = y_train[:-10000], y_train[-10000:]
-
-    # We just return all the arrays in order, as expected in main().
-    # (It doesn't matter how we do this as long as we can read them again.)
-    X_train = np.asarray(X_train, dtype=np.float32)
-    y_train = np.asarray(y_train, dtype=np.int32)
-    X_val = np.asarray(X_val, dtype=np.float32)
-    y_val = np.asarray(y_val, dtype=np.int32)
-    X_test = np.asarray(X_test, dtype=np.float32)
-    y_test = np.asarray(y_test, dtype=np.int32)
-
-    return X_train, y_train, X_val, y_val, X_test, y_test
-
-
-def data_augmentation_full(image, objects_coord, width_height, config):
-    section = inspect.stack()[0][3]
-    with tf.name_scope(section):
-        random_crop = config.getfloat(section, 'random_crop')
-        if random_crop > 0:
-            image, objects_coord, width_height = tf.cond(
-                tf.random_uniform([]) < config.getfloat(section, 'enable_probability'),
-                lambda: tfimage.random_crop(image, objects_coord, width_height, random_crop),
-                lambda: (image, objects_coord, width_height)
-            )
-    return image, objects_coord, width_height
-
-
-def resize_image_objects(image, objects_coord, width_height, width, height):
-    with tf.name_scope(inspect.stack()[0][3]):
-        image = tf.image.resize_images(image, [height, width])
-        factor = [width, height] / width_height
-        objects_coord = objects_coord * tf.tile(factor, [2])
-    return image, objects_coord
-
-
-def data_augmentation_resized(image, objects_coord, width, height, config):
-    section = inspect.stack()[0][3]
-    with tf.name_scope(section):
-        if config.getboolean(section, 'random_flip_horizontally'):
-            image, objects_coord = tfimage.random_flip_horizontally(image, objects_coord, width)
-        if config.getboolean(section, 'random_brightness'):
-            image = tf.cond(
-                tf.random_uniform([]) < config.getfloat(section, 'enable_probability'),
-                lambda: tf.image.random_brightness(image, max_delta=63),
-                lambda: image
-            )
-        if config.getboolean(section, 'random_saturation'):
-            image = tf.cond(
-                tf.random_uniform([]) < config.getfloat(section, 'enable_probability'),
-                lambda: tf.image.random_saturation(image, lower=0.5, upper=1.5),
-                lambda: image
-            )
-        if config.getboolean(section, 'random_hue'):
-            image = tf.cond(
-                tf.random_uniform([]) < config.getfloat(section, 'enable_probability'),
-                lambda: tf.image.random_hue(image, max_delta=0.032),
-                lambda: image
-            )
-        if config.getboolean(section, 'random_contrast'):
-            image = tf.cond(
-                tf.random_uniform([]) < config.getfloat(section, 'enable_probability'),
-                lambda: tf.image.random_contrast(image, lower=0.5, upper=1.5),
-                lambda: image
-            )
-        if config.getboolean(section, 'noise'):
-            image = tf.cond(
-                tf.random_uniform([]) < config.getfloat(section, 'enable_probability'),
-                lambda: image + tf.truncated_normal(tf.shape(image)) * tf.random_uniform([], 5, 15),
-                lambda: image
-            )
-        grayscale_probability = config.getfloat(section, 'grayscale_probability')
-        if grayscale_probability > 0:
-            image = tfimage.random_grayscale(image, grayscale_probability)
-    return image, objects_coord
+    if args.dataset_name == 'cifar10':
+        cifar10_dir = os.path.join('cache', 'dataset', 'cifar10')
+        cifar10.conver2record(cifar10_dir)
+    else:
+        raise ValueError('[%s] is not known' % args.dataset_name)
 
 
 def cache(config, args):
@@ -408,10 +276,10 @@ def load_image_labels(paths, classes, width, height, cell_width, cell_height, co
         image = tf.cast(image, tf.float32)
         width_height = tf.cast(imageshape[1::-1], tf.float32)
         if config.getboolean('data_augmentation_full', 'enable'):
-            image, objects_coord, width_height = data_augmentation_full(image, objects_coord, width_height, config)
-        image, objects_coord = resize_image_objects(image, objects_coord, width_height, width, height)
+            image, objects_coord, width_height = tfimage.data_augmentation_full(image, objects_coord, width_height, config)
+        image, objects_coord = tfimage.resize_image_objects(image, objects_coord, width_height, width, height)
         if config.getboolean('data_augmentation_resized', 'enable'):
-            image, objects_coord = data_augmentation_resized(image, objects_coord, width, height, config)
+            image, objects_coord = tfimage.data_augmentation_resized(image, objects_coord, width, height, config)
         image = tf.clip_by_value(image, 0, 255)
         objects_coord = objects_coord / [width, height, width, height]
 

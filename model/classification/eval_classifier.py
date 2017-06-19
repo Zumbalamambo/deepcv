@@ -1,16 +1,13 @@
-"""Generic evaluation script that evaluates a model using a given dataset."""
-
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
-import sys
-sys.path.append('../..')
+
 import math
 import tensorflow as tf
 
-import utils.dataset.dataset_factory as dataset_factory
-import model.classification.net_factory as nets_factory
-import utils.preprocessing.preprocessing_factory as preprocessing_factory
+from datasets import dataset_factory
+from nets import nets_factory
+from preprocessing import preprocessing_factory
 
 slim = tf.contrib.slim
 

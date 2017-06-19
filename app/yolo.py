@@ -9,7 +9,7 @@ import utils.tfdata as tfdata
 import utils.tfsys as tfsys
 import utils.tfdetection as tfdet
 import model.detection.yolo_detector as yolo_det
-import model.detection.yolo_train as yolo_train
+import model.detection.train_detector as train_detector
 
 sys.path.append('..')
 
@@ -22,7 +22,7 @@ def run(config, args):
 
 
 def train(config, args):
-    yolo_train.train(config, args)
+    train_detector.run(config, args)
 
 
 def detect(config, args):

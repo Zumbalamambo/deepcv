@@ -97,3 +97,65 @@ def random_grayscale(image, probability=0.5):
         fn1 = lambda: tf.tile(tf.image.rgb_to_grayscale(image), [1] * (len(image.get_shape()) - 1) + [3])
         fn2 = lambda: image
     return tf.cond(pred, fn1, fn2)
+
+
+def data_augmentation_full(image, objects_coord, width_height, config):
+    section = inspect.stack()[0][3]
+    with tf.name_scope(section):
+        random_crop = config.getfloat(section, 'random_crop')
+        if random_crop > 0:
+            image, objects_coord, width_height = tf.cond(
+                tf.random_uniform([]) < config.getfloat(section, 'enable_probability'),
+                lambda: random_crop(image, objects_coord, width_height, random_crop),
+                lambda: (image, objects_coord, width_height)
+            )
+    return image, objects_coord, width_height
+
+
+def resize_image_objects(image, objects_coord, width_height, width, height):
+    with tf.name_scope(inspect.stack()[0][3]):
+        image = tf.image.resize_images(image, [height, width])
+        factor = [width, height] / width_height
+        objects_coord = objects_coord * tf.tile(factor, [2])
+    return image, objects_coord
+
+
+def data_augmentation_resized(image, objects_coord, width, height, config):
+    section = inspect.stack()[0][3]
+    with tf.name_scope(section):
+        if config.getboolean(section, 'random_flip_horizontally'):
+            image, objects_coord = random_flip_horizontally(image, objects_coord, width)
+        if config.getboolean(section, 'random_brightness'):
+            image = tf.cond(
+                tf.random_uniform([]) < config.getfloat(section, 'enable_probability'),
+                lambda: tf.image.random_brightness(image, max_delta=63),
+                lambda: image
+            )
+        if config.getboolean(section, 'random_saturation'):
+            image = tf.cond(
+                tf.random_uniform([]) < config.getfloat(section, 'enable_probability'),
+                lambda: tf.image.random_saturation(image, lower=0.5, upper=1.5),
+                lambda: image
+            )
+        if config.getboolean(section, 'random_hue'):
+            image = tf.cond(
+                tf.random_uniform([]) < config.getfloat(section, 'enable_probability'),
+                lambda: tf.image.random_hue(image, max_delta=0.032),
+                lambda: image
+            )
+        if config.getboolean(section, 'random_contrast'):
+            image = tf.cond(
+                tf.random_uniform([]) < config.getfloat(section, 'enable_probability'),
+                lambda: tf.image.random_contrast(image, lower=0.5, upper=1.5),
+                lambda: image
+            )
+        if config.getboolean(section, 'noise'):
+            image = tf.cond(
+                tf.random_uniform([]) < config.getfloat(section, 'enable_probability'),
+                lambda: image + tf.truncated_normal(tf.shape(image)) * tf.random_uniform([], 5, 15),
+                lambda: image
+            )
+        grayscale_probability = config.getfloat(section, 'grayscale_probability')
+        if grayscale_probability > 0:
+            image = random_grayscale(image, grayscale_probability)
+    return image, objects_coord

@@ -4,9 +4,8 @@ import configparser
 import tensorflow as tf
 import utils.tfdata as tfdata
 import utils.tfsys as tfsys
-import app.mnist as mnist
 import app.yolo as yolo
-
+import app.classifier as classifier
 
 def main():
     parser = argparse.ArgumentParser("[DeepCV]")
@@ -15,14 +14,16 @@ def main():
     parser.add_argument('--task', type=str, default='classify', help='')
     parser.add_argument('--model', type=str, default='vgg16', help='')
     parser.add_argument('--gpu', type=bool, default=False, help='')
+    parser.add_argument('-c', '--config', nargs='+', default=['./config.cfg'], help='config file')
+    parser.add_argument('--ckpt', help='')
     parser.add_argument('-l', '--logdir', help='loading model from a .ckpt file')
     parser.add_argument('-d', '--delete', action='store_true', help='delete logdir')
-    parser.add_argument('-c', '--config', nargs='+', default=['./config/config.ini'], help='config file')
+
     parser.add_argument('-p', '--profile', nargs='+', default=['train', 'val'], help='')
 
     # cache data
     parser.add_argument('-v', '--verify', default=True, action='store_true')
-
+    parser.add_argument('-ds', '--dataset_name', default='cifar10', help='')
     # training params
     parser.add_argument('-tf', '--transfer', help='transferring model from a .ckpt file')
     parser.add_argument('-ec', '--exclude', nargs='+', help='exclude variables while transferring')
@@ -49,8 +50,11 @@ def main():
 
     if args.level:
         tf.logging.set_verbosity(args.level.upper())
+
     if args.app == 'data':
-        tfdata.cache(config, args)
+        tfdata.download_covert2record(args)
+    elif args.app == 'classify':
+        classifier.classify_image(config, args)
     elif args.app == 'mnist':
         # mnist.run(args)
         pass

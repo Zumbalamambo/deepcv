@@ -1,7 +1,7 @@
 import utils.preprocessing.inception_preprocessing as inception_preprocessing
 
 
-def get_preprocessing(name, is_training):
+def get_preprocessing(name, is_training=False):
     preprocessing_fn_map = {
         'mobilenet_v1': inception_preprocessing
     }

@@ -10,7 +10,7 @@ import utils.tftrain as tftrain
 import utils.tfdetection as tfdet
 
 
-def train(config, args):
+def run(config, args):
     model = config.get('config', 'model')
 
     with open(tfsys.get_label(config), 'r') as f:
