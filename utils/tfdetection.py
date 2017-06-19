@@ -39,8 +39,8 @@ def non_max_suppress(conf, xy_min, xy_max, threshold, threshold_iou):
 def get_downsampling(config):
     model = config.get('config', 'model')
     # m_infer = 'model.detection.'+model+'.inference'
-    print('name: '+model)
-    return getattr(importlib.import_module('model.detection.'+model+'.inference'),
+    print('name: ' + model)
+    return getattr(importlib.import_module('model.detection.' + model + '.inference'),
                    config.get(model, 'inference').upper() + '_DOWNSAMPLING')
 
 

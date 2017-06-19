@@ -39,7 +39,7 @@ def detect(config, args):
     file_path = os.path.expanduser(os.path.expandvars(args.file))
     ext_name = os.path.splitext(os.path.basename(file_path))[1]
 
-    yolo = importlib.import_module('model.detection.'+model)
+    yolo = importlib.import_module('model.detection.' + model)
 
     with tf.Session(config=tf.ConfigProto(allow_soft_placement=True)) as sess:
 

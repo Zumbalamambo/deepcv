@@ -60,7 +60,7 @@ def darknet(net, classes, num_anchors, training=False, center=True):
     net = tf.identity(net, name='%s/input' % scope)
     with slim.arg_scope([slim.layers.conv2d], kernel_size=[3, 3], normalizer_fn=batch_norm,
                         activation_fn=tfnet.leaky_relu), slim.arg_scope([slim.layers.max_pool2d], kernel_size=[2, 2],
-                                                                  padding='SAME'):
+                                                                        padding='SAME'):
         index = 0
         channels = 32
         for _ in range(2):

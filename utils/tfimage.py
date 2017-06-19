@@ -64,16 +64,16 @@ def random_crop(image, objects_coord, width_height, scale=1):
     assert 0 < scale <= 1
     section = inspect.stack()[0][3]
     with tf.name_scope(section):
-         xy_min = tf.reduce_min(objects_coord[:, :2], 0)
-         xy_max = tf.reduce_max(objects_coord[:, 2:], 0)
-         margin = width_height - xy_max
-         shrink = tf.random_uniform([4], maxval=scale) * tf.concat([xy_min, margin], 0)
-         _xy_min = shrink[:2]
-         _wh = width_height - shrink[2:] -_xy_min
-         objects_coord = objects_coord - tf.tile(_xy_min, [2])
-         _xy_min_ = tf.cast(_xy_min, tf.int32)
-         _wh_ = tf.cast(_wh, tf.int32)
-         image = tf.image.crop_to_bounding_box(image, _xy_min_[1], _xy_min_[0], _wh_[1], _wh_[0])
+        xy_min = tf.reduce_min(objects_coord[:, :2], 0)
+        xy_max = tf.reduce_max(objects_coord[:, 2:], 0)
+        margin = width_height - xy_max
+        shrink = tf.random_uniform([4], maxval=scale) * tf.concat([xy_min, margin], 0)
+        _xy_min = shrink[:2]
+        _wh = width_height - shrink[2:] - _xy_min
+        objects_coord = objects_coord - tf.tile(_xy_min, [2])
+        _xy_min_ = tf.cast(_xy_min, tf.int32)
+        _wh_ = tf.cast(_wh, tf.int32)
+        image = tf.image.crop_to_bounding_box(image, _xy_min_[1], _xy_min_[0], _wh_[1], _wh_[0])
 
     return image, objects_coord, _wh
 

@@ -167,8 +167,9 @@ def cache(config, args):
         labels = [line.strip() for line in f]
 
     labels_index = dict([(name, i) for i, name in enumerate(labels)])
-    dataset = [(os.path.basename(os.path.splitext(path)[0]), pandas.read_csv(os.path.expanduser(os.path.expandvars(path)))) \
-               for path in config.get('dataset', 'data').split(':')]
+    dataset = [
+        (os.path.basename(os.path.splitext(path)[0]), pandas.read_csv(os.path.expanduser(os.path.expandvars(path)))) \
+        for path in config.get('dataset', 'data').split(':')]
 
     module = importlib.import_module('utils.tfdata')
     cache_dir = tfsys.get_cachedir(config)
@@ -176,7 +177,7 @@ def cache(config, args):
     os.makedirs(data_dir, exist_ok=True)
 
     for profile in args.profile:
-        tfrecord_file = os.path.join(data_dir, profile+'.tfrecord')
+        tfrecord_file = os.path.join(data_dir, profile + '.tfrecord')
         tf.logging.info('Write tfrecord file:' + tfrecord_file)
         with tf.python_io.TFRecordWriter(tfrecord_file) as writer:
             for name, data in dataset:
@@ -228,14 +229,14 @@ def coco(writer, labels_index, profile, row, verify=True):
     #     objects_coord = [(x, y, x + w, y + h) for x, y, w, h in objects_coord]
     #     objects_coord = np.array(objects_coord, dtype=np.float32)
 
-        # if False:
-        #     if not tfimage.verify_coords(objects_coord, imageshape):
-        #         # tf.logging.error('failed to verify coordinates of ' + imagepath)
-        #         continue
-        #     if not tfimage.verify_image_jpeg(image_path, imageshape):
-        #         # tf.logging.error('failed to decode ' + imagepath)
-        #         decode_error += 1
-        #         continue
+    # if False:
+    #     if not tfimage.verify_coords(objects_coord, imageshape):
+    #         # tf.logging.error('failed to verify coordinates of ' + imagepath)
+    #         continue
+    #     if not tfimage.verify_image_jpeg(image_path, imageshape):
+    #         # tf.logging.error('failed to decode ' + imagepath)
+    #         decode_error += 1
+    #         continue
 
     #     assert len(objects_class) == len(objects_coord)
     #

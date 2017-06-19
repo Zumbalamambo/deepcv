@@ -27,7 +27,7 @@ def train(config, args):
     tf.logging.warn('num_examples=%d' % num_examples)
     with tf.name_scope('batch'):
         image_rgb, labels = tfdata.load_image_labels(paths, len(labels), width, height, cell_width, cell_height,
-                                                         config)
+                                                     config)
         with tf.name_scope('per_image_standardization'):
             image_std = tf.image.per_image_standardization(image_rgb)
         batch = tf.train.shuffle_batch((image_std,) + labels, batch_size=args.batch_size,
@@ -36,7 +36,7 @@ def train(config, args):
                                        num_threads=multiprocessing.cpu_count()
                                        )
     # prepare model
-    yolo = importlib.import_module('model.detection.'+model)
+    yolo = importlib.import_module('model.detection.' + model)
     builder = yolo.Builder(args, config)
     builder(batch[0], training=True)
     with tf.name_scope('total_loss') as name:
@@ -79,7 +79,8 @@ def train(config, args):
     # method 2: training net weights from the beginning
     else:
         tf.logging.warn('start training from beginning')
-        init_fn = lambda sess: tf.logging.warn('global_step=%d, learning_rate=%f' % sess.run((global_step, learning_rate)))
+        init_fn = lambda sess: tf.logging.warn(
+            'global_step=%d, learning_rate=%f' % sess.run((global_step, learning_rate)))
 
     tftrain.summary(config)
     logdir = tfsys.get_logdir(config)

@@ -57,5 +57,3 @@ def get_label(config):
     label_name = config.get('dataset', 'name')
 
     return os.path.join(basedir, 'config', 'label', label_name)
-
-
