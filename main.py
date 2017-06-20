@@ -54,7 +54,7 @@ def main():
     if args.app == 'data':
         tfdata.download_covert2record(args)
     elif args.app == 'classify':
-        classifier.classify_image(config, args)
+        classifier.run(config, args)
     elif args.app == 'mnist':
         # mnist.run(args)
         pass
