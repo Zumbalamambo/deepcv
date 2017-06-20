@@ -15,7 +15,7 @@ def classify_image(config, args):
     # parse arguments
     model_name = config.get('config', 'model')
     # ds_name = config.get('dataset', 'name')
-    num_class = config.get('dataset', 'num_class')
+    num_class = int(config.get('dataset', 'num_class'))
     img_height = int(config.get(model_name, 'height'))
     img_width = int(config.get(model_name, 'width'))
     ckpt_path = args.ckpt
@@ -41,10 +41,10 @@ def classify_image(config, args):
     # with slim.arg_scope(classfier_factory.arg_scopes_map[model_name]):
     logits, _ = net(image_ph)
     category_probablity = tf.nn.softmax(logits)
-    print(ckpt_path)
+    print(model_name)
     # model_path = tf.train.latest_checkpoint(ckpt_path)
-    init_fn = slim.assign_from_checkpoint_fn(ckpt_path, slim.get_variables_to_restore())
-
+    init_fn = slim.assign_from_checkpoint_fn(ckpt_path, slim.get_model_variables(model_name))
+    # init_fn = slim.assign_from_checkpoint_fn(ckpt_path, slim.get_variables_to_restore())
     with tf.Session(config=tf.ConfigProto(allow_soft_placement=True)) as sess:
         init_fn(sess)
         classify_result = sess.run(category_probablity, {image_ph: image})
@@ -52,21 +52,36 @@ def classify_image(config, args):
 
         sorted_id = [i[0] for i in sorted(enumerate(-probablities), key=lambda x: x[1])]
 
+    top5_names = []
+    top5_probablities = []
+    top5_result = []
     names = imagenet.create_readable_names_for_imagenet_labels()
-
     for i in range(5):
         index = sorted_id[i]
-        print('Probablity %.10f%% ==> [%s]' % ((probablities[index] * 100), names[index]))
+        top5_names.append(str(names[index]))
+        top5_probablities.append(probablities[index] * 100)
+        top5_result.append('Probablity %.2f%% ==> [%s] \r' % ((probablities[index] * 100), names[index]))
+        print('Probablity %.2f%% ==> [%s]' % ((probablities[index] * 100), names[index]))
 
-    benchmark = max(probablities)
-    for k, v in enumerate(probablities):
-        if v == benchmark:
-            print(names[k])
-        else:
-            continue
+    # benchmark = max(probablities)
+    # for k, v in enumerate(probablities):
+    #     if v == benchmark:
+    #         print(names[k])
+    #     else:
+    #         continue
 
-    plt.figure()
-    plt.imshow(image_original)
-    plt.axis('off')
-    plt.show()
+    # # plt.figure()
+    # # plt.imshow(image_original, label='dog')
+    # # # plt.axis('off')
+    # # plt.xlabel(str(top5_result))
+    # # plt.show()
+    #
+    # fig, ax = plt.subplots(nrows=1, ncols=2)
+    # plt.subplot(1, 2, 1)
+    # plt.imshow(image_original)
+    # plt.axis('off')
+    #
+    # plt.subplot(1, 2, 2)
+    # plt.bar(range(len(top5_probablities)), top5_probablities)
 
+    # plt.show()
