@@ -3,6 +3,7 @@ import utils.preprocessing.inception_preprocessing as inception_preprocessing
 
 def get_preprocessing(name, is_training=False):
     preprocessing_fn_map = {
+        'inception_v1': inception_preprocessing,
         'mobilenet_v1': inception_preprocessing
     }
 

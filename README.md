@@ -19,9 +19,8 @@ python main.py --app=yolo -c config.cfg config/yolo2/darknet-voc.cfg --task=trai
 ## Running method:
 
 ### classification
-cd model/classification
-python eval_classifier.py --checkpoint_path=${CHECKPOINT_PATH} --dataset_dir=${DATASET_DIR} --dataset_name=cifar10 --model_name=mobilenet_v1
-
+python main.py --config=config/inception/inception_v1.cfg --ckpt=cache/log/inception/inception_v1.ckpt \
+               --app=classify --file=${FILE_PATH}
 
 ### YOLO Detection
 python main.py --app=yolo -c config.ini config/yolo2/darknet-voc.cfg --task=detect --file=$FILE_PATH

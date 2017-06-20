@@ -1,14 +1,17 @@
 import functools
 import tensorflow as tf
+import model.classification.inception as inception
 import model.classification.mobilenet_v1 as mobilenet_v1
 
 slim = tf.contrib.slim
 
 networks_map = {
+    'inception_v1': inception.inception_v1,
     'mobilenet_v1': mobilenet_v1.mobilenet_v1
 }
 
 arg_scopes_map = {
+    'inception_v1': inception.inception_v1_arg_scope,
     'mobilenet_v1': mobilenet_v1.mobilenet_v1_arg_scope
 }
 
