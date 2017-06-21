@@ -5,6 +5,8 @@ import utils.preprocessing.vgg_preprocessing as vgg_preprocessing
 def get_preprocessing(name, is_training=False):
     preprocessing_fn_map = {
         'inception_v1': inception_preprocessing,
+        'inception_v2': inception_preprocessing,
+        'inception_v3': inception_preprocessing,
         'inception_v4': inception_preprocessing,
         'inception_resnet_v2': inception_preprocessing,
         'mobilenet_v1': inception_preprocessing,
@@ -12,6 +14,9 @@ def get_preprocessing(name, is_training=False):
         'vgg_a': vgg_preprocessing,
         'vgg_16': vgg_preprocessing,
         'vgg_19': vgg_preprocessing,
+        'resnet_v1_50': vgg_preprocessing,
+        'resnet_v1_101': vgg_preprocessing,
+        'resnet_v1_152': vgg_preprocessing,
     }
 
     if name not in preprocessing_fn_map:

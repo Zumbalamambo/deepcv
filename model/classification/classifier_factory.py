@@ -1,6 +1,7 @@
 import functools
 import tensorflow as tf
 import model.classification.vgg as vgg
+import model.classification.resnet_v1 as resnet_v1
 import model.classification.inception as inception
 import model.classification.mobilenet_v1 as mobilenet_v1
 
@@ -10,7 +11,13 @@ networks_map = {
     'vgg_a': vgg.vgg_a,
     'vgg_16': vgg.vgg_16,
     'vgg_19': vgg.vgg_19,
+    'resnet_v1_50': resnet_v1.resnet_v1_50,
+    'resnet_v1_101': resnet_v1.resnet_v1_101,
+    'resnet_v1_152': resnet_v1.resnet_v1_152,
+    'resnet_v1_200': resnet_v1.resnet_v1_200,
     'inception_v1': inception.inception_v1,
+    'inception_v2': inception.inception_v2,
+    'inception_v3': inception.inception_v3,
     'inception_v4': inception.inception_v4,
     'inception_resnet_v2': inception.inception_resnet_v2,
     'mobilenet_v1': mobilenet_v1.mobilenet_v1
@@ -20,7 +27,13 @@ arg_scopes_map = {
     'vgg_a': vgg.vgg_arg_scope,
     'vgg_16': vgg.vgg_arg_scope,
     'vgg_19': vgg.vgg_arg_scope,
+    'resnet_v1_50': resnet_v1.resnet_arg_scope,
+    'resnet_v1_101': resnet_v1.resnet_arg_scope,
+    'resnet_v1_152': resnet_v1.resnet_arg_scope,
+    'resnet_v1_200': resnet_v1.resnet_arg_scope,
     'inception_v1': inception.inception_v1_arg_scope,
+    'inception_v2': inception.inception_v2_arg_scope,
+    'inception_v3': inception.inception_v3_arg_scope,
     'inception_v4': inception.inception_v4_arg_scope,
     'inception_resnet_v2': inception.inception_resnet_v2_arg_scope,
     'mobilenet_v1': mobilenet_v1.mobilenet_v1_arg_scope
