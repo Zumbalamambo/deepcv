@@ -449,10 +449,8 @@ def inception_v2(inputs,
         raise ValueError('depth_multiplier is not greater than zero.')
 
     # Final pooling and prediction
-    with tf.variable_scope(scope, 'InceptionV2', [inputs, num_classes],
-                           reuse=reuse) as scope:
-        with slim.arg_scope([slim.batch_norm, slim.dropout],
-                            is_training=is_training):
+    with tf.variable_scope(scope, 'InceptionV2', [inputs, num_classes], reuse=reuse) as scope:
+        with slim.arg_scope([slim.batch_norm, slim.dropout], is_training=is_training):
             net, end_points = inception_v2_base(
                 inputs, scope=scope, min_depth=min_depth,
                 depth_multiplier=depth_multiplier)

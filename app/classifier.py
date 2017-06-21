@@ -5,7 +5,7 @@ import tensorflow as tf
 import model.classification.classifier_factory as classfier_factory
 import utils.preprocessing.preprocessing_factory as preprocessing_factory
 import utils.dataset.imagenet as imagenet
-
+import model.classification.inception_v1 as inception_v1
 try:
     import urllib2
 except ImportError:
@@ -31,6 +31,7 @@ def classify_image_local(config, args):
     img_height = int(config.get(model_name, 'height'))
     img_width = int(config.get(model_name, 'width'))
     ckpt_path = config.get('weights', 'ckpt')
+    model_variables = config.get('weights', 'model_variables')
     image_path = args.file
 
     # load file
@@ -42,11 +43,12 @@ def classify_image_local(config, args):
     feed_dict = {image_ph: image}
 
     net_fn = classfier_factory.get_network_fn(model_name, num_class, is_training=False)
-
+    # logits, _ = inception_v1.inception_v1(image_ph, num_class, is_training=False)
     logits, _ = net_fn(image_ph)
     net_out = tf.nn.softmax(logits)
 
-    init_fn = slim.assign_from_checkpoint_fn(ckpt_path, slim.get_model_variables(model_name))
+    init_fn = slim.assign_from_checkpoint_fn(ckpt_path, slim.get_model_variables(model_variables))
+    # init_fn = slim.assign_from_checkpoint_fn(ckpt_path, tf.global_variables())
     with tf.Session(config=tf.ConfigProto(allow_soft_placement=True)) as sess:
         init_fn(sess)
         classify_result = sess.run(net_out, feed_dict=feed_dict)

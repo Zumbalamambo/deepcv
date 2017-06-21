@@ -263,15 +263,12 @@ def inception_v1(inputs,
         activation.
     """
     # Final pooling and prediction
-    with tf.variable_scope(scope, 'InceptionV1', [inputs, num_classes],
-                           reuse=reuse) as scope:
-        with slim.arg_scope([slim.batch_norm, slim.dropout],
-                            is_training=is_training):
+    with tf.variable_scope(scope, 'InceptionV1', [inputs, num_classes], reuse=reuse) as scope:
+        with slim.arg_scope([slim.batch_norm, slim.dropout], is_training=is_training):
             net, end_points = inception_v1_base(inputs, scope=scope)
             with tf.variable_scope('Logits'):
                 net = slim.avg_pool2d(net, [7, 7], stride=1, scope='AvgPool_0a_7x7')
-                net = slim.dropout(net,
-                                   dropout_keep_prob, scope='Dropout_0b')
+                net = slim.dropout(net, dropout_keep_prob, scope='Dropout_0b')
                 logits = slim.conv2d(net, num_classes, [1, 1], activation_fn=None,
                                      normalizer_fn=None, scope='Conv2d_0c_1x1')
                 if spatial_squeeze:
