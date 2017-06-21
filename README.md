@@ -19,8 +19,13 @@ python main.py --app=yolo -c config.cfg config/yolo2/darknet-voc.cfg --task=trai
 ## Running method:
 
 ### classification
-python main.py --config=config/inception/inception_v1.cfg --ckpt=cache/log/inception/inception_v1.ckpt \
-               --app=classify --file=${FILE_PATH}
+```shell
+$ FILE_PATH = ~/dataset/
+$ python main.py --config=config/vgg/vgg_16.cfg \ 
+               --app=classify \
+               --file=${FILE_PATH} or --file_url=${FILE_PATH}
+
+```
 
 ### YOLO Detection
 python main.py --app=yolo -c config.ini config/yolo2/darknet-voc.cfg --task=detect --file=$FILE_PATH

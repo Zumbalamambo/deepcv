@@ -9,16 +9,21 @@ import app.classifier as classifier
 
 def main():
     parser = argparse.ArgumentParser("[DeepCV]")
-    parser.add_argument('--file', help='input image path')
+    parser.add_argument('--file', help='local image path')
+    parser.add_argument('--file_url', help='remote image path')
     parser.add_argument('--app', type=str, default='mnist', help='')
     parser.add_argument('--task', type=str, default='classify', help='')
     parser.add_argument('--model', type=str, default='vgg16', help='')
     parser.add_argument('--gpu', type=bool, default=False, help='')
     parser.add_argument('-c', '--config', nargs='+', default=['./config.cfg'], help='config file')
-    parser.add_argument('--ckpt', help='')
+    parser.add_argument('--ckpt', default='', help='')
+
+    parser.add_argument('--json', default=False, help='')
+    parser.add_argument('--visible', default=False, help='')
+
+
     parser.add_argument('-l', '--logdir', help='loading model from a .ckpt file')
     parser.add_argument('-d', '--delete', action='store_true', help='delete logdir')
-
     parser.add_argument('-p', '--profile', nargs='+', default=['train', 'val'], help='')
 
     # cache data
