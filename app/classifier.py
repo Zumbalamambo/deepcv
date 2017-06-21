@@ -2,7 +2,6 @@ from PIL import Image
 import json
 import numpy as np
 import tensorflow as tf
-import matplotlib.pyplot as plt
 import model.classification.classifier_factory as classfier_factory
 import utils.preprocessing.preprocessing_factory as preprocessing_factory
 import utils.dataset.imagenet as imagenet
