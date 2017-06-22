@@ -9,6 +9,7 @@ import tensorflow as tf
 from nets import inception_utils
 
 slim = tf.contrib.slim
+
 trunc_normal = lambda stddev: tf.truncated_normal_initializer(0.0, stddev)
 
 
@@ -78,8 +79,7 @@ def inception_v2_base(inputs,
             depthwise_multiplier = min(int(depth(64) / 3), 8)
             net = slim.separable_conv2d(
                 inputs, depth(64), [7, 7], depth_multiplier=depthwise_multiplier,
-                stride=2, weights_initializer=trunc_normal(1.0),
-                scope=end_point)
+                stride=2, weights_initializer=trunc_normal(1.0), scope=end_point)
             end_points[end_point] = net
             if end_point == final_endpoint: return net, end_points
             # 112 x 112 x 64
@@ -451,17 +451,16 @@ def inception_v2(inputs,
     # Final pooling and prediction
     with tf.variable_scope(scope, 'InceptionV2', [inputs, num_classes], reuse=reuse) as scope:
         with slim.arg_scope([slim.batch_norm, slim.dropout], is_training=is_training):
-            net, end_points = inception_v2_base(
-                inputs, scope=scope, min_depth=min_depth,
-                depth_multiplier=depth_multiplier)
+            net, end_points = inception_v2_base(inputs, scope=scope, min_depth=min_depth,
+                                                depth_multiplier=depth_multiplier)
             with tf.variable_scope('Logits'):
                 kernel_size = _reduced_kernel_size_for_small_input(net, [7, 7])
                 net = slim.avg_pool2d(net, kernel_size, padding='VALID',
                                       scope='AvgPool_1a_{}x{}'.format(*kernel_size))
                 # 1 x 1 x 1024
                 net = slim.dropout(net, keep_prob=dropout_keep_prob, scope='Dropout_1b')
-                logits = slim.conv2d(net, num_classes, [1, 1], activation_fn=None,
-                                     normalizer_fn=None, scope='Conv2d_1c_1x1')
+                logits = slim.conv2d(net, num_classes, [1, 1], activation_fn=None, normalizer_fn=None,
+                                     scope='Conv2d_1c_1x1')
                 if spatial_squeeze:
                     logits = tf.squeeze(logits, [1, 2], name='SpatialSqueeze')
             end_points['Logits'] = logits
