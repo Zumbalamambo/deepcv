@@ -22,8 +22,8 @@ python main.py --app=yolo -c config.cfg config/yolo2/darknet-voc.cfg --task=trai
 ```shell
 $ FILE_PATH = ~/dataset/
 $ python main.py --config=config/vgg/vgg_16.cfg \ 
-               --app=classify \
-               --file=${FILE_PATH} or --file_url=${FILE_PATH}
+                 --app=classify \
+                 --file=${FILE_PATH} or --file_url=${FILE_PATH}
 
 ```
 Model | TF-Slim File | Checkpoint | Top-1 Accuracy| Top-5 Accuracy |
