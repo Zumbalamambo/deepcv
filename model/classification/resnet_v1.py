@@ -44,9 +44,9 @@ from __future__ import print_function
 
 import tensorflow as tf
 
-from nets import resnet_utils
+import model.classification.resnet_util as resnet_util
 
-resnet_arg_scope = resnet_utils.resnet_arg_scope
+resnet_arg_scope = resnet_util.resnet_arg_scope
 slim = tf.contrib.slim
 
 
@@ -78,14 +78,14 @@ def bottleneck(inputs, depth, depth_bottleneck, stride, rate=1,
     with tf.variable_scope(scope, 'bottleneck_v1', [inputs]) as sc:
         depth_in = slim.utils.last_dimension(inputs.get_shape(), min_rank=4)
         if depth == depth_in:
-            shortcut = resnet_utils.subsample(inputs, stride, 'shortcut')
+            shortcut = resnet_util.subsample(inputs, stride, 'shortcut')
         else:
             shortcut = slim.conv2d(inputs, depth, [1, 1], stride=stride,
                                    activation_fn=None, scope='shortcut')
 
         residual = slim.conv2d(inputs, depth_bottleneck, [1, 1], stride=1,
                                scope='conv1')
-        residual = resnet_utils.conv2d_same(residual, depth_bottleneck, 3, stride,
+        residual = resnet_util.conv2d_same(residual, depth_bottleneck, 3, stride,
                                             rate=rate, scope='conv2')
         residual = slim.conv2d(residual, depth, [1, 1], stride=1,
                                activation_fn=None, scope='conv3')
@@ -133,7 +133,7 @@ def resnet_v1(inputs,
     Args:
       inputs: A tensor of size [batch, height_in, width_in, channels].
       blocks: A list of length equal to the number of ResNet blocks. Each element
-        is a resnet_utils.Block object describing the units in the block.
+        is a resnet_util.Block object describing the units in the block.
       num_classes: Number of predicted classes for classification tasks. If None
         we return the features before the logit layer.
       is_training: whether is training or not.
@@ -167,7 +167,7 @@ def resnet_v1(inputs,
     with tf.variable_scope(scope, 'resnet_v1', [inputs], reuse=reuse) as sc:
         end_points_collection = sc.name + '_end_points'
         with slim.arg_scope([slim.conv2d, bottleneck,
-                             resnet_utils.stack_blocks_dense],
+                             resnet_util.stack_blocks_dense],
                             outputs_collections=end_points_collection):
             with slim.arg_scope([slim.batch_norm], is_training=is_training):
                 net = inputs
@@ -176,9 +176,9 @@ def resnet_v1(inputs,
                         if output_stride % 4 != 0:
                             raise ValueError('The output_stride needs to be a multiple of 4.')
                         output_stride /= 4
-                    net = resnet_utils.conv2d_same(net, 64, 7, stride=2, scope='conv1')
+                    net = resnet_util.conv2d_same(net, 64, 7, stride=2, scope='conv1')
                     net = slim.max_pool2d(net, [3, 3], stride=2, scope='pool1')
-                net = resnet_utils.stack_blocks_dense(net, blocks, output_stride)
+                net = resnet_util.stack_blocks_dense(net, blocks, output_stride)
                 if global_pool:
                     # Global average pooling.
                     net = tf.reduce_mean(net, [1, 2], name='pool5', keep_dims=True)
@@ -213,7 +213,7 @@ def resnet_v1_block(scope, base_depth, num_units, stride):
     Returns:
       A resnet_v1 bottleneck block.
     """
-    return resnet_utils.Block(scope, bottleneck, [{
+    return resnet_util.Block(scope, bottleneck, [{
         'depth': base_depth * 4,
         'depth_bottleneck': base_depth,
         'stride': 1

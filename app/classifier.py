@@ -1,3 +1,4 @@
+import os
 from PIL import Image
 import json
 import numpy as np
@@ -47,11 +48,18 @@ def classify_image_local(config, args):
     logits, _ = net_fn(image_ph)
     net_out = tf.nn.softmax(logits)
 
-    init_fn = slim.assign_from_checkpoint_fn(ckpt_path, slim.get_model_variables(model_variables))
-    # init_fn = slim.assign_from_checkpoint_fn(ckpt_path, tf.global_variables())
     with tf.Session(config=tf.ConfigProto(allow_soft_placement=True)) as sess:
-        init_fn(sess)
+        saver = tf.train.Saver()
+        if os.path.isdir(ckpt_path):
+            ckpt = tf.train.get_checkpoint_state(ckpt_path)
+            if ckpt and ckpt.model_checkpoint_path:
+                saver.restore(sess, ckpt.model_checkpoint_path)
+        else:
+            init_fn = slim.assign_from_checkpoint_fn(ckpt_path, slim.get_model_variables(model_variables))
+            init_fn(sess)
+
         classify_result = sess.run(net_out, feed_dict=feed_dict)
+
         probablities = classify_result[0, 0:]
         sorted_id = [i[0] for i in sorted(enumerate(-probablities), key=lambda x: x[1])]
 

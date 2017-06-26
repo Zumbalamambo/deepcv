@@ -12,7 +12,7 @@ from __future__ import print_function
 
 import tensorflow as tf
 
-from nets import inception_utils
+import model.classification.inception_util as inception_util
 
 slim = tf.contrib.slim
 
@@ -303,4 +303,4 @@ def inception_v4(inputs, num_classes=1001, is_training=True,
 
 inception_v4.default_image_size = 299
 
-inception_v4_arg_scope = inception_utils.inception_arg_scope
+inception_v4_arg_scope = inception_util.inception_arg_scope

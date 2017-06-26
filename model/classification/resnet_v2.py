@@ -38,10 +38,10 @@ from __future__ import print_function
 
 import tensorflow as tf
 
-from nets import resnet_utils
+import model.classification.resnet_util as resnet_util
 
 slim = tf.contrib.slim
-resnet_arg_scope = resnet_utils.resnet_arg_scope
+resnet_arg_scope = resnet_util.resnet_arg_scope
 
 
 @slim.add_arg_scope
@@ -73,7 +73,7 @@ def bottleneck(inputs, depth, depth_bottleneck, stride, rate=1,
         depth_in = slim.utils.last_dimension(inputs.get_shape(), min_rank=4)
         preact = slim.batch_norm(inputs, activation_fn=tf.nn.relu, scope='preact')
         if depth == depth_in:
-            shortcut = resnet_utils.subsample(inputs, stride, 'shortcut')
+            shortcut = resnet_util.subsample(inputs, stride, 'shortcut')
         else:
             shortcut = slim.conv2d(preact, depth, [1, 1], stride=stride,
                                    normalizer_fn=None, activation_fn=None,
@@ -81,7 +81,7 @@ def bottleneck(inputs, depth, depth_bottleneck, stride, rate=1,
 
         residual = slim.conv2d(preact, depth_bottleneck, [1, 1], stride=1,
                                scope='conv1')
-        residual = resnet_utils.conv2d_same(residual, depth_bottleneck, 3, stride,
+        residual = resnet_util.conv2d_same(residual, depth_bottleneck, 3, stride,
                                             rate=rate, scope='conv2')
         residual = slim.conv2d(residual, depth, [1, 1], stride=1,
                                normalizer_fn=None, activation_fn=None,
@@ -130,7 +130,7 @@ def resnet_v2(inputs,
     Args:
       inputs: A tensor of size [batch, height_in, width_in, channels].
       blocks: A list of length equal to the number of ResNet blocks. Each element
-        is a resnet_utils.Block object describing the units in the block.
+        is a resnet_util.Block object describing the units in the block.
       num_classes: Number of predicted classes for classification tasks. If None
         we return the features before the logit layer.
       is_training: whether is training or not.
@@ -166,7 +166,7 @@ def resnet_v2(inputs,
     with tf.variable_scope(scope, 'resnet_v2', [inputs], reuse=reuse) as sc:
         end_points_collection = sc.name + '_end_points'
         with slim.arg_scope([slim.conv2d, bottleneck,
-                             resnet_utils.stack_blocks_dense],
+                             resnet_util.stack_blocks_dense],
                             outputs_collections=end_points_collection):
             with slim.arg_scope([slim.batch_norm], is_training=is_training):
                 net = inputs
@@ -180,9 +180,9 @@ def resnet_v2(inputs,
                     # Appendix of [2].
                     with slim.arg_scope([slim.conv2d],
                                         activation_fn=None, normalizer_fn=None):
-                        net = resnet_utils.conv2d_same(net, 64, 7, stride=2, scope='conv1')
+                        net = resnet_util.conv2d_same(net, 64, 7, stride=2, scope='conv1')
                     net = slim.max_pool2d(net, [3, 3], stride=2, scope='pool1')
-                net = resnet_utils.stack_blocks_dense(net, blocks, output_stride)
+                net = resnet_util.stack_blocks_dense(net, blocks, output_stride)
                 # This is needed because the pre-activation variant does not have batch
                 # normalization or activation functions in the residual unit output. See
                 # Appendix of [2].
@@ -221,7 +221,7 @@ def resnet_v2_block(scope, base_depth, num_units, stride):
     Returns:
       A resnet_v2 bottleneck block.
     """
-    return resnet_utils.Block(scope, bottleneck, [{
+    return resnet_util.Block(scope, bottleneck, [{
         'depth': base_depth * 4,
         'depth_bottleneck': base_depth,
         'stride': 1

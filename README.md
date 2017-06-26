@@ -26,6 +26,8 @@ $ python main.py --config=config/vgg/vgg_16.cfg \
                  --file=${FILE_PATH} or --file_url=${FILE_PATH}
 
 ```
+# Pre-trained Models
+
 Model | TF-Slim File | Checkpoint | Top-1 Accuracy| Top-5 Accuracy |
 :----:|:------------:|:----------:|:-------:|:--------:|
 [Inception V1](http://arxiv.org/abs/1409.4842v1)|[Code](https://github.com/xhzcyc/deepcv/blob/master/model/classification/inception_v1.py)|[inception_v1_2016_08_28.tar.gz](https://pan.baidu.com/s/1gfACLMV)|69.8|89.6|
@@ -39,9 +41,30 @@ Model | TF-Slim File | Checkpoint | Top-1 Accuracy| Top-5 Accuracy |
 [ResNet V2 200](https://arxiv.org/abs/1603.05027)|[Code](https://github.com/xhzcyc/deepcv/blob/master/model/classification/resnet_v2.py)|[TBA]()|79.9\*|95.2\*|
 [VGG 16](http://arxiv.org/abs/1409.1556.pdf)|[Code](https://github.com/xhzcyc/deepcv/blob/master/model/classification/vgg.py)|[vgg_16_2016_08_28.tar.gz](https://pan.baidu.com/s/1gfACLMV)|71.5|89.8|
 [VGG 19](http://arxiv.org/abs/1409.1556.pdf)|[Code](https://github.com/xhzcyc/deepcv/blob/master/model/classification/vgg.py)|[vgg_19_2016_08_28.tar.gz](https://pan.baidu.com/s/1gfACLMV)|71.1|89.8|
-[MobileNet_v1_1.0_224](https://arxiv.org/pdf/1704.04861.pdf)|[Code](https://github.com/xhzcyc/deepcv/blob/master/model/classification/mobilenet_v1.py)|[mobilenet_v1_1.0_224_2017_06_14.tar.gz](https://pan.baidu.com/s/1gfACLMV)|70.7|89.5|
-[MobileNet_v1_0.50_160](https://arxiv.org/pdf/1704.04861.pdf)|[Code](https://github.com/xhzcyc/deepcv/blob/master/model/classification/mobilenet_v1.py)|[mobilenet_v1_0.50_160_2017_06_14.tar.gz](https://pan.baidu.com/s/1gfACLMV)|59.9|82.5|
-[MobileNet_v1_0.25_128](https://arxiv.org/pdf/1704.04861.pdf)|[Code](https://github.com/xhzcyc/deepcv/blob/master/model/classification/mobilenet_v1.py)|[mobilenet_v1_0.25_128_2017_06_14.tar.gz](https://pan.baidu.com/s/1gfACLMV)|41.3|66.2|
+
+Choose the right MobileNet model to fit your latency and size budget. The size of the network in memory and on disk is proportional to the number of parameters. The latency and power usage of the network scales with the number of Multiply-Accumulates (MACs) which measures the number of fused Multiplication and Addition operations. These MobileNet models have been trained on the
+[ILSVRC-2012-CLS](http://www.image-net.org/challenges/LSVRC/2012/)
+image classification dataset. Accuracies were computed by evaluating using a single image crop.
+
+Model Checkpoint | Million MACs | Million Parameters | Top-1 Accuracy| Top-5 Accuracy |
+:----:|:------------:|:----------:|:-------:|:-------:|
+[MobileNet_v1_1.0_224](https://pan.baidu.com/s/1gfACLMV)|569|4.24|70.7|89.5|
+[MobileNet_v1_1.0_192](https://pan.baidu.com/s/1gfACLMV)|418|4.24|69.3|88.9|
+[MobileNet_v1_1.0_160](https://pan.baidu.com/s/1gfACLMV)|291|4.24|67.2|87.5|
+[MobileNet_v1_1.0_128](https://pan.baidu.com/s/1gfACLMV)|186|4.24|64.1|85.3|
+[MobileNet_v1_0.75_224](https://pan.baidu.com/s/1gfACLMV)|317|2.59|68.4|88.2|
+[MobileNet_v1_0.75_192](https://pan.baidu.com/s/1gfACLMV)|233|2.59|67.4|87.3|
+[MobileNet_v1_0.75_160](https://pan.baidu.com/s/1gfACLMV)|162|2.59|65.2|86.1|
+[MobileNet_v1_0.75_128](https://pan.baidu.com/s/1gfACLMV)|104|2.59|61.8|83.6|
+[MobileNet_v1_0.50_224](https://pan.baidu.com/s/1gfACLMV)|150|1.34|64.0|85.4|
+[MobileNet_v1_0.50_192](https://pan.baidu.com/s/1gfACLMV)|110|1.34|62.1|84.0|
+[MobileNet_v1_0.50_160](https://pan.baidu.com/s/1gfACLMV)|77|1.34|59.9|82.5|
+[MobileNet_v1_0.50_128](https://pan.baidu.com/s/1gfACLMV)|49|1.34|56.2|79.6|
+[MobileNet_v1_0.25_224](https://pan.baidu.com/s/1gfACLMV)|41|0.47|50.6|75.0|
+[MobileNet_v1_0.25_192](https://pan.baidu.com/s/1gfACLMV)|34|0.47|49.0|73.6|
+[MobileNet_v1_0.25_160](https://pan.baidu.com/s/1gfACLMV)|21|0.47|46.0|70.7|
+[MobileNet_v1_0.25_128](https://pan.baidu.com/s/1gfACLMV)|14|0.47|41.3|66.2|
+
 ### YOLO Detection
 python main.py --app=yolo -c config.ini config/yolo2/darknet-voc.cfg --task=detect --file=$FILE_PATH
 

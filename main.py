@@ -16,7 +16,6 @@ def main():
     parser.add_argument('--model', type=str, default='vgg16', help='')
     parser.add_argument('--gpu', type=bool, default=False, help='')
     parser.add_argument('-c', '--config', nargs='+', default=['./config.cfg'], help='config file')
-    parser.add_argument('--ckpt', default='', help='')
 
     parser.add_argument('--json', default=False, help='')
     parser.add_argument('--visible', default=False, help='')
