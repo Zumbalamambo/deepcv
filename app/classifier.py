@@ -6,7 +6,7 @@ import tensorflow as tf
 import model.classification.classifier_factory as classfier_factory
 import utils.preprocessing.preprocessing_factory as preprocessing_factory
 import utils.dataset.imagenet as imagenet
-import model.classification.inception_v1 as inception_v1
+
 try:
     import urllib2
 except ImportError:
