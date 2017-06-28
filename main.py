@@ -2,33 +2,37 @@ import time
 import argparse
 import configparser
 import tensorflow as tf
-import utils.tfdata as tfdata
 import utils.tfsys as tfsys
 import app.yolo as yolo
 import app.classifier as classifier
+import app.detector as detector
+import utils.tfrecord as tfrecord
 
 def main():
     parser = argparse.ArgumentParser("[DeepCV]")
+    # run app with base arguments
+    parser.add_argument('--config', default='', help='config file')
+    parser.add_argument('--app', type=str, default='mnist', help='')
+    parser.add_argument('--task', type=str, default='predict', help='')
     parser.add_argument('--file', help='local image path')
     parser.add_argument('--file_url', help='remote image path')
-    parser.add_argument('--app', type=str, default='mnist', help='')
-    parser.add_argument('--task', type=str, default='classify', help='')
-    parser.add_argument('--model', type=str, default='vgg16', help='')
-    parser.add_argument('--gpu', type=bool, default=False, help='')
-    parser.add_argument('-c', '--config', nargs='+', default=['./config.cfg'], help='config file')
 
+    # result type
     parser.add_argument('--json', default=False, help='')
     parser.add_argument('--visible', default=False, help='')
 
-
+    #
     parser.add_argument('-l', '--logdir', help='loading model from a .ckpt file')
     parser.add_argument('-d', '--delete', action='store_true', help='delete logdir')
     parser.add_argument('-p', '--profile', nargs='+', default=['train', 'val'], help='')
 
     # cache data
+    parser.add_argument('--datatype', default='', help='')
+    parser.add_argument('--year', default='', help='')
+    parser.add_argument('--set', default='train', help='')
+
     parser.add_argument('-v', '--verify', default=True, action='store_true')
     parser.add_argument('-ds', '--dataset_name', default='cifar10', help='')
-    # training params
     parser.add_argument('-tf', '--transfer', help='transferring model from a .ckpt file')
     parser.add_argument('-ec', '--exclude', nargs='+', help='exclude variables while transferring')
 
@@ -55,10 +59,16 @@ def main():
     if args.level:
         tf.logging.set_verbosity(args.level.upper())
 
-    if args.app == 'data':
-        tfdata.download_covert2record(args)
-    elif args.app == 'classify':
+    if args.app == 'tfrecord':
+        if args.datatype == 'voc':
+            tfrecord.voc_to_tfrecord(config, args)
+        else:
+            print('%s cannot convert into tfrecord' % args.datatype)
+        # tfdata.download_covert2record(args)
+    elif args.app == 'classifier':
         classifier.run(config, args)
+    elif args.app == 'detector':
+        detector.run(config, args)
     elif args.app == 'mnist':
         # mnist.run(args)
         pass

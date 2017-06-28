@@ -1,26 +1,42 @@
 # deepcv
 Can we make computer vision like our eyes?
 
+## License
+> Copyright 2017 *** Authors. All Rights Reserved.
+
+> Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+
+> You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+> See the License for the specific language governing permissions and
+  limitations under the License.
+
+
+
 ## Prepare data
-step1. download voc/coco data and uncompress them \
-step2. modify the deepcv/config/dataset/voc.csv \
-step3. python main.py -app=data -c config.cfg config/yolo2/darknet-voc.cfg
-
-
-## Training method:
-### method 1: fine tuning net weights from pre-trained net
-python main.py --app=yolo -c config.cfg config/yolo2/darknet-voc.cfg --task=train --transfer=$WEIGHTS_DRI
-### method 2: training net weights from the beginning
-python main.py --app=yolo -c config.cfg config/yolo2/darknet-voc.cfg --task=train
-## Running method:
-
-### classification
 ```shell
-$ FILE_PATH = ~/dataset/
-$ python main.py --config=config/vgg/vgg_16.cfg \ 
-                 --app=classify \
-                 --file=${FILE_PATH} or --file_url=${FILE_PATH}
+$ python main.py --config=config/dataset/pascal_voc.cfg
+                 --app=tfrecord
+                 --year=VOC2007
+                 --set=train or val or test
+```
 
+## classification
+### classify
+```shell
+$ FILE_PATH = ~/dataset/test.jpg
+$ python main.py --config=config/vgg/vgg_16.cfg
+                 --app=classifier
+                 --task=classify
+                 --file=${FILE_PATH} or --file_url=${FILE_PATH}
+```
+### train
+```shell
+$ python train_classifier.py --config=config/vgg/vgg_16.cfg
 ```
 # Pre-trained Models
 
@@ -62,5 +78,12 @@ Model Checkpoint | Million MACs | Million Parameters | Top-1 Accuracy| Top-5 Acc
 [MobileNet_v1_0.25_128](https://pan.baidu.com/s/1gfACLMV)|14|0.47|41.3|66.2|
 
 ### YOLO Detection
-python main.py --app=yolo -c config.ini config/yolo2/darknet-voc.cfg --task=detect --file=$FILE_PATH
+```shell
+$ FILE_PATH = ~/dataset/test.jpg
+$ python main.py  --config=config/ssd/ssd_v1.cfg \
+                  --app=detector \
+                  --task=detect \
+                  --file=$FILE_PATH
+```
+
 
