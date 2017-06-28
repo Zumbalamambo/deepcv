@@ -3,6 +3,7 @@ import configparser
 import time
 import app.yolo as yolo
 import app.classifier as classifier
+import app.detector as detector
 import utils.tfsys as tfsys
 
 
@@ -34,7 +35,6 @@ def main():
     elif args.app == 'classifier':
         classifier.run(config, args)
     elif args.app == 'detector':
-        import app.detector as detector
         detector.run(config, args)
     elif args.app == 'yolo':
         yolo.run(config, args)

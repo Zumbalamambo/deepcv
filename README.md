@@ -35,16 +35,31 @@ $ python main.py --config=config/vgg/vgg_16.cfg
                  --task=classify
                  --file=${FILE_PATH} or --file_url=${FILE_PATH}
 ```
-### train
+### train a model from scratch
 ```shell
 DATASET_DIR=cache/dataset/imagenet
 TRAIN_DIR=cache/log/vgg_16
-python train_classifier.py --train_dir=${TRAIN_DIR}
+python train_classifier.py --model_name=vgg_16
+                           --train_dir=${TRAIN_DIR}
+                           --dataset_dir=${DATASET_DIR}
                            --dataset_name=imagenet
                            --dataset_split_name=train
-                           --dataset_dir=${DATASET_DIR}
                            --model_name=vgg_16
 ```
+
+### fine-tuning a model from an existing checkpoint
+```shell
+$ DATASET_DIR=cache/dataset/imagenet
+$ TRAIN_DIR=cache/log/vgg_16
+$ CHECKPOINT_PATH=cache/weight/vgg_16.ckpt
+$ python train_classifier.py --model_name=inception_v3
+                             --train_dir=${TRAIN_DIR}
+                             --dataset_dir=${DATASET_DIR}
+                             --dataset_name=flowers
+                             --dataset_split_name=train
+                             --checkpoint_path=${CHECKPOINT_PATH}
+```
+
 # Pre-trained Models
 
 Model | TF-Slim File | Checkpoint | Top-1 Accuracy| Top-5 Accuracy |

@@ -130,8 +130,7 @@ tf.app.flags.DEFINE_integer('batch_size', 32, 'The number of samples in each bat
 
 tf.app.flags.DEFINE_integer('train_image_size', None, 'Train image size')
 
-tf.app.flags.DEFINE_integer('max_number_of_steps', None,
-                            'The maximum number of training steps.')
+tf.app.flags.DEFINE_integer('max_number_of_steps', None, 'The maximum number of training steps.')
 
 #####################
 # Fine-Tuning Flags #
@@ -299,6 +298,7 @@ def main(_):
         raise ValueError('You must supply the dataset directory with --dataset_dir')
 
     tf.logging.set_verbosity(tf.logging.INFO)
+
     with tf.Graph().as_default():
         #######################
         # Config model_deploy #
@@ -325,7 +325,6 @@ def main(_):
                                                        num_classes=(dataset.num_classes - FLAGS.labels_offset),
                                                        weight_decay=FLAGS.weight_decay,
                                                        is_training=True)
-
         #####################################
         # Select the preprocessing function #
         #####################################
