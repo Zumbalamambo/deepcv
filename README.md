@@ -35,7 +35,7 @@ $ python main.py --config=config/vgg/vgg_16.cfg
                  --task=classify
                  --file=${FILE_PATH} or --file_url=${FILE_PATH}
 ```
-### train a model from scratch
+### train a classification model from scratch
 ```shell
 DATASET_DIR=cache/dataset/imagenet
 TRAIN_DIR=cache/log/vgg_16
@@ -47,7 +47,7 @@ python train_classifier.py --model_name=vgg_16
                            --model_name=vgg_16
 ```
 
-### fine-tuning a model from an existing checkpoint
+### fine-tuning a classification model from an existing checkpoint
 ```shell
 $ DATASET_DIR=cache/dataset/imagenet
 $ TRAIN_DIR=cache/log/vgg_16
@@ -58,6 +58,14 @@ $ python train_classifier.py --model_name=inception_v3
                              --dataset_name=flowers
                              --dataset_split_name=train
                              --checkpoint_path=${CHECKPOINT_PATH}
+```
+### YOLO Detection
+```shell
+$ FILE_PATH = ~/dataset/test.jpg
+$ python main.py  --config=config/ssd/ssd_v1.cfg \
+                  --app=detector \
+                  --task=detect \
+                  --file=$FILE_PATH
 ```
 
 ## Pre-trained Models
@@ -99,13 +107,5 @@ Model Checkpoint | Million MACs | Million Parameters | Top-1 Accuracy| Top-5 Acc
 [MobileNet_v1_0.25_160](https://pan.baidu.com/s/1gfACLMV)|21|0.47|46.0|70.7|
 [MobileNet_v1_0.25_128](https://pan.baidu.com/s/1gfACLMV)|14|0.47|41.3|66.2|
 
-### YOLO Detection
-```shell
-$ FILE_PATH = ~/dataset/test.jpg
-$ python main.py  --config=config/ssd/ssd_v1.cfg \
-                  --app=detector \
-                  --task=detect \
-                  --file=$FILE_PATH
-```
 
 
