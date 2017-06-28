@@ -60,7 +60,7 @@ $ python train_classifier.py --model_name=inception_v3
                              --checkpoint_path=${CHECKPOINT_PATH}
 ```
 
-# Pre-trained Models
+## Pre-trained Models
 
 Model | TF-Slim File | Checkpoint | Top-1 Accuracy| Top-5 Accuracy |
 :----:|:------------:|:----------:|:-------:|:--------:|
