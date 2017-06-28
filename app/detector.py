@@ -1,5 +1,3 @@
-import os
-import functools
 import json
 from PIL import Image
 import numpy as np
@@ -52,6 +50,7 @@ def detect_image_local(config, args):
                                                                 use_display_name=True)
     category_index = label_map_util.create_category_index(categories)
     IMAGE_SIZE = (12, 8)
+
     with detection_graph.as_default():
         with tf.Session(config=tf.ConfigProto(allow_soft_placement=True), graph=detection_graph) as sess:
 
@@ -63,17 +62,27 @@ def detect_image_local(config, args):
 
             (boxes, scores, classes, num_detections) = sess.run([boxes, scores, classes, num_detections],
                                                                 feed_dict={image_tensor: image})
-            vis_util.visualize_boxes_and_labels_on_image_array(
-                image_np,
-                np.squeeze(boxes),
-                np.squeeze(classes).astype(np.int32),
-                np.squeeze(scores),
-                category_index,
-                use_normalized_coordinates=True,
-                line_thickness=8)
-            plt.figure(figsize=IMAGE_SIZE)
-            plt.imshow(image_np)
-            plt.show()
+    result = []
+    if args.print:
+        pass
+
+    if args.json:
+        result = json.dumps(result)
+
+    if args.show:
+        vis_util.visualize_boxes_and_labels_on_image_array(
+            image_np,
+            np.squeeze(boxes),
+            np.squeeze(classes).astype(np.int32),
+            np.squeeze(scores),
+            category_index,
+            use_normalized_coordinates=True,
+            line_thickness=8)
+        plt.figure(figsize=IMAGE_SIZE)
+        plt.imshow(image_np)
+        plt.show()
+
+    return result
 
 
 def detect_image_remote(config, args):
