@@ -316,8 +316,7 @@ def main(_):
         ######################
         # Select the dataset #
         ######################
-        dataset = dataset_factory.get_dataset(
-            FLAGS.dataset_name, FLAGS.dataset_split_name, FLAGS.dataset_dir)
+        dataset = dataset_factory.get_dataset(FLAGS.dataset_name, FLAGS.dataset_split_name, FLAGS.dataset_dir)
 
         ######################
         # Select the network #

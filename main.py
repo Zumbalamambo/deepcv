@@ -1,12 +1,12 @@
-import time
 import argparse
 import configparser
+
 import tensorflow as tf
-import utils.tfsys as tfsys
+
 import app.yolo as yolo
 import app.classifier as classifier
-import app.detector as detector
-import utils.tfrecord as tfrecord
+import utils.tfsys as tfsys
+
 
 def main():
     parser = argparse.ArgumentParser("[DeepCV]")
@@ -21,37 +21,6 @@ def main():
     parser.add_argument('--json', default=False, help='')
     parser.add_argument('--visible', default=False, help='')
 
-    #
-    parser.add_argument('-l', '--logdir', help='loading model from a .ckpt file')
-    parser.add_argument('-d', '--delete', action='store_true', help='delete logdir')
-    parser.add_argument('-p', '--profile', nargs='+', default=['train', 'val'], help='')
-
-    # cache data
-    parser.add_argument('--datatype', default='', help='')
-    parser.add_argument('--year', default='', help='')
-    parser.add_argument('--set', default='train', help='')
-
-    parser.add_argument('-v', '--verify', default=True, action='store_true')
-    parser.add_argument('-ds', '--dataset_name', default='cifar10', help='')
-    parser.add_argument('-tf', '--transfer', help='transferring model from a .ckpt file')
-    parser.add_argument('-ec', '--exclude', nargs='+', help='exclude variables while transferring')
-
-    parser.add_argument('-b', '--batch_size', default=8, type=int, help='batch size')
-    parser.add_argument('-o', '--optimizer', default='adam')
-    parser.add_argument('-lr', '--learning_rate', default=1e-6, type=float, help='learning rate')
-    parser.add_argument('-s', '--steps', type=int, default=None, help='max number of steps')
-    parser.add_argument('--summary_secs', default=30, type=int, help='seconds to save summaries')
-    parser.add_argument('--save_secs', default=60, type=int, help='seconds to save model')
-
-    # detection configure
-    parser.add_argument('-th', '--threshold', type=float, default=0.3)
-    parser.add_argument('-thi', '--threshold_iou', type=float, default=0.4, help='IoU threshold')
-    parser.add_argument('--level', default='info', help='logging level')
-    parser.add_argument('-n', '--logname', default=time.strftime('%Y-%m-%d_%H-%M-%S'), help='the name for TensorBoard')
-    parser.add_argument('-g', '--gradient_clip', default=0, type=float, help='gradient clip')
-    parser.add_argument('--seed', type=int, default=None)
-    parser.add_argument('--master', default='', help='master address')
-
     args = parser.parse_args()
     config = configparser.ConfigParser()
     tfsys.load_config(config, args.config)
@@ -60,20 +29,16 @@ def main():
         tf.logging.set_verbosity(args.level.upper())
 
     if args.app == 'tfrecord':
+        import utils.tfrecord as tfrecord
         if args.datatype == 'voc':
             tfrecord.voc_to_tfrecord(config, args)
         else:
             print('%s cannot convert into tfrecord' % args.datatype)
-        # tfdata.download_covert2record(args)
     elif args.app == 'classifier':
         classifier.run(config, args)
     elif args.app == 'detector':
+        import app.detector as detector
         detector.run(config, args)
-    elif args.app == 'mnist':
-        # mnist.run(args)
-        pass
-    elif args.app == 'cifar':
-        pass
     elif args.app == 'yolo':
         yolo.run(config, args)
     else:

@@ -49,8 +49,9 @@ def classify_image_local(config, args):
     net_out = tf.nn.softmax(logits)
 
     with tf.Session(config=tf.ConfigProto(allow_soft_placement=True)) as sess:
-        saver = tf.train.Saver()
+
         if os.path.isdir(ckpt_path):
+            saver = tf.train.Saver()
             ckpt = tf.train.get_checkpoint_state(ckpt_path)
             if ckpt and ckpt.model_checkpoint_path:
                 saver.restore(sess, ckpt.model_checkpoint_path)
