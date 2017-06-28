@@ -16,11 +16,15 @@ slim = tf.contrib.slim
 
 
 def run(config, args):
-    if args.file is not None:
-        classify_image_local(config, args)
-    elif args.file_url is not None:
-        result = classify_iamge_remote(config, args)
-        print(result)
+    if args.task == 'classify':
+        if args.file is not None:
+            classify_image_local(config, args)
+        elif args.file_url is not None:
+            classify_iamge_remote(config, args)
+        else:
+            print('Classification error!')
+    elif args.task == 'train':
+        pass
     else:
         print('No this task!')
 
@@ -44,12 +48,14 @@ def classify_image_local(config, args):
     feed_dict = {image_ph: image}
 
     net_fn = classfier_factory.get_network_fn(model_name, num_class, is_training=False)
-    # logits, _ = inception_v1.inception_v1(image_ph, num_class, is_training=False)
     logits, _ = net_fn(image_ph)
     net_out = tf.nn.softmax(logits)
 
-    with tf.Session(config=tf.ConfigProto(allow_soft_placement=True)) as sess:
+    if args.gpu:
+        sess_cfg = tf.ConfigProto()
+        sess_cfg.gpu_options.allow_growth = True
 
+    with tf.Session(config=sess_cfg) as sess:
         if os.path.isdir(ckpt_path):
             saver = tf.train.Saver()
             ckpt = tf.train.get_checkpoint_state(ckpt_path)
@@ -58,23 +64,24 @@ def classify_image_local(config, args):
         else:
             init_fn = slim.assign_from_checkpoint_fn(ckpt_path, slim.get_model_variables(model_variables))
             init_fn(sess)
-
         classify_result = sess.run(net_out, feed_dict=feed_dict)
-
         probablities = classify_result[0, 0:]
         sorted_id = [i[0] for i in sorted(enumerate(-probablities), key=lambda x: x[1])]
 
-    if args.json:
-        top5_result = []
     names = imagenet.create_readable_names_for_imagenet_labels()
+    top5_result = []
     for i in range(5):
         index = sorted_id[i]
-        print('Probablity %.2f%% ==> [%s]' % ((probablities[index] * 100), names[index + 1]))
-        if args.json:
-            top5_result.append({'name': names[index+1], 'probability': probablities[index] * 100})
+        top5_result.append({'name': names[index + 1], 'probability': probablities[index] * 100})
+        if args.print:
+            print('Probablity %.2f%% ==> [%s]' % ((probablities[index] * 100), names[index + 1]))
 
     if args.json:
-        return json.dumps(top5_result)
+        top5_result = json.dumps(top5_result)
+
+    if args.show:
+        pass
+    return top5_result
 
 
 def classify_iamge_remote(config, args):
@@ -85,6 +92,7 @@ def classify_iamge_remote(config, args):
     img_height = int(config.get(model_name, 'height'))
     img_width = int(config.get(model_name, 'width'))
     ckpt_path = config.get('weights', 'ckpt')
+    model_variables = config.get('weights', 'model_variables')
     image_url = args.file_url
 
     image_str = urllib.urlopen(image_url).read()
@@ -99,10 +107,20 @@ def classify_iamge_remote(config, args):
     logits, _ = net_fn(processed_image)
     net_out = tf.nn.softmax(logits)
 
-    init_fn = slim.assign_from_checkpoint_fn(ckpt_path, slim.get_model_variables(model_name))
+    if args.gpu:
+        sess_cfg = tf.ConfigProto()
+        sess_cfg.gpu_options.allow_growth = True
 
-    with tf.Session(config=tf.ConfigProto(allow_soft_placement=True)) as sess:
-        init_fn(sess)
+    with tf.Session(config=sess_cfg) as sess:
+        if os.path.isdir(ckpt_path):
+            saver = tf.train.Saver()
+            ckpt = tf.train.get_checkpoint_state(ckpt_path)
+            if ckpt and ckpt.model_checkpoint_path:
+                saver.restore(sess, ckpt.model_checkpoint_path)
+        else:
+            init_fn = slim.assign_from_checkpoint_fn(ckpt_path, slim.get_model_variables(model_variables))
+            init_fn(sess)
+
         np_image, probablities = sess.run([image, net_out])
         probablities = probablities[0, 0:]
         sorted_id = [i[0] for i in sorted(enumerate(-probablities), key=lambda x: x[1])]
@@ -112,6 +130,14 @@ def classify_iamge_remote(config, args):
     for i in range(5):
         index = sorted_id[i]
         top5_result.append({'name': names[index + 1], 'probability': probablities[index] * 100})
+        if args.print:
+            print('Probablity %.2f%% ==> [%s]' % ((probablities[index] * 100), names[index + 1]))
 
-    return json.dumps(top5_result)
+    if args.json:
+        top5_result = json.dumps(top5_result)
+
+    if args.show:
+        pass
+
+    return top5_result
 

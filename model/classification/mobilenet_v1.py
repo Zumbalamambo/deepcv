@@ -83,9 +83,6 @@ Total:                                                 1,800,144     106,002,432
 """
 
 # Tensorflow mandates these.
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
 
 from collections import namedtuple
 
@@ -339,15 +336,11 @@ def _reduced_kernel_size_for_small_input(input_tensor, kernel_size):
     if shape[1] is None or shape[2] is None:
         kernel_size_out = kernel_size
     else:
-        kernel_size_out = [min(shape[1], kernel_size[0]),
-                           min(shape[2], kernel_size[1])]
+        kernel_size_out = [min(shape[1], kernel_size[0]), min(shape[2], kernel_size[1])]
     return kernel_size_out
 
 
-def mobilenet_v1_arg_scope(is_training=True,
-                           weight_decay=0.00004,
-                           stddev=0.09,
-                           regularize_depthwise=False):
+def mobilenet_v1_arg_scope(is_training=True, weight_decay=0.00004, stddev=0.09, regularize_depthwise=False):
     """Defines the default MobilenetV1 arg scope.
 
     Args:

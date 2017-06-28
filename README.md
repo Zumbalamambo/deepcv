@@ -30,13 +30,20 @@ $ python main.py --config=config/dataset/pascal_voc.cfg
 ```shell
 $ FILE_PATH = ~/dataset/test.jpg
 $ python main.py --config=config/vgg/vgg_16.cfg
+                 --gpu = True
                  --app=classifier
                  --task=classify
                  --file=${FILE_PATH} or --file_url=${FILE_PATH}
 ```
 ### train
 ```shell
-$ python train_classifier.py --config=config/vgg/vgg_16.cfg
+DATASET_DIR=cache/dataset/imagenet
+TRAIN_DIR=cache/log/vgg_16
+python train_classifier.py --train_dir=${TRAIN_DIR}
+                           --dataset_name=imagenet
+                           --dataset_split_name=train
+                           --dataset_dir=${DATASET_DIR}
+                           --model_name=vgg_16
 ```
 # Pre-trained Models
 

@@ -55,12 +55,12 @@ arg_scopes_map = {
     'mobilenet_v1': mobilenet_v1.mobilenet_v1_arg_scope
 }
 
-def get_network_base(name, inputs, final_endpoint='Conv2d_13_pointwise', min_depth=8, depth_multiplier=1.0,
-                     conv_defs=None, output_stride=None, scope=None):
-    if name not in networks_base_map:
-        raise ValueError('%s network is not known' % name)
-    return networks_base_map[name](inputs, final_endpoint='Conv2d_13_pointwise', min_depth=8, depth_multiplier=1.0,
-                     conv_defs=None, output_stride=None, scope=None)
+# def get_network_base(name, inputs, final_endpoint='Conv2d_13_pointwise', min_depth=8, depth_multiplier=1.0,
+#                      conv_defs=None, output_stride=None, scope=None):
+#     if name not in networks_base_map:
+#         raise ValueError('%s network is not known' % name)
+#     return networks_base_map[name](inputs, final_endpoint='Conv2d_13_pointwise', min_depth=8, depth_multiplier=1.0,
+#                      conv_defs=None, output_stride=None, scope=None)
 
 
 def get_network_fn(name, num_classes, weight_decay=0.0, is_training=False):

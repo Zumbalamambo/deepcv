@@ -26,11 +26,12 @@ def exists_or_mkdir(path, verbose=True):
         return True
 
 
-def load_config(config, paths):
-    for path in paths:
-        path = os.path.expanduser(os.path.expandvars(path))
-        assert os.path.exists(path), 'No this config file'
-        config.read(path)
+def load_config(config, path):
+    # for path in paths:
+    #     path = os.path.expanduser(os.path.expandvars(path))
+    #     print(path)
+    assert os.path.exists(path), 'No this config file'
+    config.read(path)
 
 
 def get_cachedir(config):
