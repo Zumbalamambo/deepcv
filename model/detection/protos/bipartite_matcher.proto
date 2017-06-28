@@ -1,0 +1,8 @@
+syntax = "proto2";
+
+package model.detection.protos;
+
+// Configuration proto for bipartite matcher. See
+// matchers/bipartite_matcher.py for details.
+message BipartiteMatcher {
+}
