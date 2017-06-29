@@ -165,15 +165,13 @@ def create_clones(config, model_fn, args=None, kwargs=None):
     clones = []
     args = args or []
     kwargs = kwargs or {}
-    with slim.arg_scope([slim.model_variable, slim.variable],
-                        device=config.variables_device()):
+    with slim.arg_scope([slim.model_variable, slim.variable], device=config.variables_device()):
         # Create clones.
         for i in range(0, config.num_clones):
             with tf.name_scope(config.clone_scope(i)) as clone_scope:
                 clone_device = config.clone_device(i)
                 with tf.device(clone_device):
-                    with tf.variable_scope(tf.get_variable_scope(),
-                                           reuse=True if i > 0 else None):
+                    with tf.variable_scope(tf.get_variable_scope(), reuse=True if i > 0 else None):
                         outputs = model_fn(*args, **kwargs)
                     clones.append(Clone(outputs, clone_scope, clone_device))
     return clones
@@ -455,14 +453,8 @@ class DeploymentConfig(object):
     from the default deployment_hparams will be used.
     """
 
-    def __init__(self,
-                 num_clones=1,
-                 clone_on_cpu=False,
-                 replica_id=0,
-                 num_replicas=1,
-                 num_ps_tasks=0,
-                 worker_job_name='worker',
-                 ps_job_name='ps'):
+    def __init__(self, num_clones=1, clone_on_cpu=False, replica_id=0, num_replicas=1,
+                 num_ps_tasks=0, worker_job_name='worker', ps_job_name='ps'):
         """Create a DeploymentConfig.
 
         The config describes how to deploy a model across multiple clones and
@@ -479,8 +471,8 @@ class DeploymentConfig(object):
         Args:
           num_clones: Number of model clones to deploy in each replica.
           clone_on_cpu: If True clones would be placed on CPU.
-          replica_id: Integer.  Index of the replica for which the model is
-            deployed.  Usually 0 for the chief replica.
+          replica_id: Integer.  Index of the replica for which the model is deployed.
+            Usually 0 for the chief replica.
           num_replicas: Number of replicas to use.
           num_ps_tasks: Number of tasks for the `ps` job. 0 to not use replicas.
           worker_job_name: A name for the worker job.

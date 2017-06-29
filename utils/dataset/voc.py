@@ -162,21 +162,23 @@ def dict_to_tf_example(data, dataset_directory, label_map_dict, ignore_difficult
     return example
 
 
-def convert_to_tfrecord(config, args):
-    year = args.year
-    set = args.set
-
+def conver_to_tfrecord(config):
+    config = config.get('raw_data', 'year')
     data_dir = config.get('data', 'directory')
-    if set == 'train' or set == 'val':
-        sub_set = 'train_val'
-    elif set == 'test':
-        sub_set = 'test'
-    else:
-        print('No this dir!')
-    data_dir = os.path.join(data_dir, sub_set)
-
+    year = config.get('raw_data', 'year')
     label_map_path = config.get('label', 'path')
     tfrecord_dir = config.get('tfrecord', 'directory')
+    sets = ['train', 'val', 'test']
+
+    for set in sets:
+        if set == 'train' or set == 'val':
+            set = 'train_val'
+        data_dir = os.path.join(data_dir, set)
+        _convert_to_tfrecord(data_dir, year, set, label_map_path, tfrecord_dir)
+
+
+def _convert_to_tfrecord(data_dir, year, set, label_map_path, tfrecord_dir):
+
     tfrecord_path = os.path.join(tfrecord_dir, "%s_%s.tfrecords" % (set, year))
 
     writer = tf.python_io.TFRecordWriter(tfrecord_path)

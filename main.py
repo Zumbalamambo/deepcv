@@ -5,7 +5,7 @@ import app.yolo as yolo
 import app.classifier as classifier
 import app.detector as detector
 import utils.tfsys as tfsys
-
+import utils.tfdata as tfdata
 
 def main():
     parser = argparse.ArgumentParser("[DeepCV]")
@@ -21,17 +21,15 @@ def main():
     parser.add_argument('--print', type=bool, default=True, help='')
     parser.add_argument('--show', type=bool, default=False, help='')
     parser.add_argument('--json', type=bool, default=False, help='')
+    # prepare data
+    parser.add_argument('--dataset_name', type=str, default='', help='')
 
     args = parser.parse_args()
     config = configparser.ConfigParser()
     tfsys.load_config(config, args.config)
     start_time = time.time()
-    if args.app == 'tfrecord':
-        import utils.tfrecord as tfrecord
-        if args.datatype == 'voc':
-            tfrecord.voc_to_tfrecord(config, args)
-        else:
-            print('%s cannot convert into tfrecord' % args.datatype)
+    if args.app == 'dataset':
+        tfdata.download_covert(config, args)
     elif args.app == 'classifier':
         classifier.run(config, args)
     elif args.app == 'detector':

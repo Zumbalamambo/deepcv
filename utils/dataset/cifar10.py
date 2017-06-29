@@ -58,6 +58,46 @@ _CLASS_NAMES = [
 ]
 
 
+def convert_to_tfrecord(config):
+    """Runs the download and conversion operation.
+
+    Args:
+      dataset_dir: The dataset directory where the dataset is stored.
+    """
+    dataset_dir = config.get('raw_data', 'directory')
+    if not tf.gfile.Exists(dataset_dir):
+        tf.gfile.MakeDirs(dataset_dir)
+
+    tfrecord_dir = config.get('tfrecord', 'directory')
+    training_filename = _get_output_filename(tfrecord_dir, 'train')
+    testing_filename = _get_output_filename(tfrecord_dir, 'test')
+
+    if tf.gfile.Exists(training_filename) and tf.gfile.Exists(testing_filename):
+        print('Dataset files already exist. Exiting without re-creating them.')
+        return
+
+    dataset_util.download_and_uncompress_tarball(_DATA_URL, dataset_dir)
+
+    # First, process the training data:
+    with tf.python_io.TFRecordWriter(training_filename) as tfrecord_writer:
+        offset = 0
+        for i in range(_NUM_TRAIN_FILES):
+            filename = os.path.join(dataset_dir, 'cifar-10-batches-py', 'data_batch_%d' % (i + 1))  # 1-indexed.
+            offset = _add_to_tfrecord(filename, tfrecord_writer, offset)
+
+    # Next, process the testing data:
+    with tf.python_io.TFRecordWriter(testing_filename) as tfrecord_writer:
+        filename = os.path.join(dataset_dir, 'cifar-10-batches-py', 'test_batch')
+        _add_to_tfrecord(filename, tfrecord_writer)
+
+    # Finally, write the labels file:
+    labels_to_class_names = dict(zip(range(len(_CLASS_NAMES)), _CLASS_NAMES))
+    dataset_util.write_label_file(labels_to_class_names, tfrecord_dir)
+
+    # _clean_up_temporary_files(dataset_dir)
+    print('\nFinished converting the Cifar10 dataset!')
+
+
 def get_split(split_name, dataset_dir, file_pattern=None, reader=None):
     """Gets a dataset tuple with instructions for reading cifar10.
 
@@ -65,8 +105,7 @@ def get_split(split_name, dataset_dir, file_pattern=None, reader=None):
       split_name: A train/test split name.
       dataset_dir: The base directory of the dataset sources.
       file_pattern: The file pattern to use when matching the dataset sources.
-        It is assumed that the pattern contains a '%s' string so that the split
-        name can be inserted.
+        It is assumed that the pattern contains a '%s' string so that the split name can be inserted.
       reader: The TensorFlow reader type.
 
     Returns:
@@ -89,8 +128,7 @@ def get_split(split_name, dataset_dir, file_pattern=None, reader=None):
     keys_to_features = {
         'image/encoded': tf.FixedLenFeature((), tf.string, default_value=''),
         'image/format': tf.FixedLenFeature((), tf.string, default_value='png'),
-        'image/class/label': tf.FixedLenFeature(
-            [], tf.int64, default_value=tf.zeros([], dtype=tf.int64)),
+        'image/class/label': tf.FixedLenFeature([], tf.int64, default_value=tf.zeros([], dtype=tf.int64)),
     }
 
     items_to_handlers = {
@@ -98,63 +136,19 @@ def get_split(split_name, dataset_dir, file_pattern=None, reader=None):
         'label': slim.tfexample_decoder.Tensor('image/class/label'),
     }
 
-    decoder = slim.tfexample_decoder.TFExampleDecoder(
-        keys_to_features, items_to_handlers)
+    decoder = slim.tfexample_decoder.TFExampleDecoder(keys_to_features, items_to_handlers)
 
     labels_to_names = None
     if dataset_util.has_labels(dataset_dir):
         labels_to_names = dataset_util.read_label_file(dataset_dir)
 
-    return slim.dataset.Dataset(
-        data_sources=file_pattern,
-        reader=reader,
-        decoder=decoder,
-        num_samples=SPLITS_TO_SIZES[split_name],
-        items_to_descriptions=_ITEMS_TO_DESCRIPTIONS,
-        num_classes=_NUM_CLASSES,
-        labels_to_names=labels_to_names)
-
-
-def conver2record(dataset_dir):
-    """Runs the download and conversion operation.
-
-    Args:
-      dataset_dir: The dataset directory where the dataset is stored.
-    """
-    if not tf.gfile.Exists(dataset_dir):
-        tf.gfile.MakeDirs(dataset_dir)
-
-    training_filename = _get_output_filename(dataset_dir, 'train')
-    testing_filename = _get_output_filename(dataset_dir, 'test')
-
-    if tf.gfile.Exists(training_filename) and tf.gfile.Exists(testing_filename):
-        print('Dataset files already exist. Exiting without re-creating them.')
-        return
-
-    dataset_util.download_and_uncompress_tarball(_DATA_URL, dataset_dir)
-
-    # First, process the training data:
-    with tf.python_io.TFRecordWriter(training_filename) as tfrecord_writer:
-        offset = 0
-        for i in range(_NUM_TRAIN_FILES):
-            filename = os.path.join(dataset_dir,
-                                    'cifar-10-batches-py',
-                                    'data_batch_%d' % (i + 1))  # 1-indexed.
-            offset = _add_to_tfrecord(filename, tfrecord_writer, offset)
-
-    # Next, process the testing data:
-    with tf.python_io.TFRecordWriter(testing_filename) as tfrecord_writer:
-        filename = os.path.join(dataset_dir,
-                                'cifar-10-batches-py',
-                                'test_batch')
-        _add_to_tfrecord(filename, tfrecord_writer)
-
-    # Finally, write the labels file:
-    labels_to_class_names = dict(zip(range(len(_CLASS_NAMES)), _CLASS_NAMES))
-    dataset_util.write_label_file(labels_to_class_names, dataset_dir)
-
-    # _clean_up_temporary_files(dataset_dir)
-    print('\nFinished converting the Cifar10 dataset!')
+    return slim.dataset.Dataset(data_sources=file_pattern,
+                                reader=reader,
+                                decoder=decoder,
+                                num_samples=SPLITS_TO_SIZES[split_name],
+                                items_to_descriptions=_ITEMS_TO_DESCRIPTIONS,
+                                num_classes=_NUM_CLASSES,
+                                labels_to_names=labels_to_names)
 
 
 def _add_to_tfrecord(filename, tfrecord_writer, offset=0):

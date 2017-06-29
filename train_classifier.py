@@ -13,7 +13,7 @@ slim = tf.contrib.slim
 
 tf.app.flags.DEFINE_string('master', '', 'The address of the TensorFlow master to use.')
 
-tf.app.flags.DEFINE_string('train_dir', './cache/log/',
+tf.app.flags.DEFINE_string('log_dir', './cache/log/',
                            'Directory where checkpoints and event logs are written to.')
 
 tf.app.flags.DEFINE_integer('num_clones', 1, 'Number of model clones to deploy.')
@@ -165,8 +165,8 @@ def _configure_learning_rate(num_samples_per_epoch, global_step):
     Raises:
       ValueError: if
     """
-    decay_steps = int(num_samples_per_epoch / FLAGS.batch_size *
-                      FLAGS.num_epochs_per_decay)
+    decay_steps = int(num_samples_per_epoch / FLAGS.batch_size * FLAGS.num_epochs_per_decay)
+
     if FLAGS.sync_replicas:
         decay_steps /= FLAGS.replicas_to_aggregate
 
@@ -245,8 +245,8 @@ def _get_init_fn():
 
     # Warn the user if a checkpoint exists in the train_dir. Then we'll be
     # ignoring the checkpoint anyway.
-    if tf.train.latest_checkpoint(FLAGS.train_dir):
-        tf.logging.info('Ignoring --checkpoint_path because a checkpoint already exists in %s' % FLAGS.train_dir)
+    if tf.train.latest_checkpoint(FLAGS.log_dir):
+        tf.logging.info('Ignoring --checkpoint_path because a checkpoint already exists in %s' % FLAGS.log_dir)
         return None
 
     exclusions = []
@@ -350,10 +350,8 @@ def main(_):
                                             batch_size=FLAGS.batch_size,
                                             num_threads=FLAGS.num_preprocessing_threads,
                                             capacity=5 * FLAGS.batch_size)
-            labels = slim.one_hot_encoding(
-                labels, dataset.num_classes - FLAGS.labels_offset)
-            batch_queue = slim.prefetch_queue.prefetch_queue(
-                [images, labels], capacity=2 * deploy_config.num_clones)
+            labels = slim.one_hot_encoding(labels, dataset.num_classes - FLAGS.labels_offset)
+            batch_queue = slim.prefetch_queue.prefetch_queue([images, labels], capacity=2 * deploy_config.num_clones)
 
         ####################
         # Define the model #
@@ -362,6 +360,7 @@ def main(_):
             """Allows data parallelism by creating multiple clones of network_fn."""
             with tf.device(deploy_config.inputs_device()):
                 images, labels = batch_queue.dequeue()
+
             logits, end_points = network_fn(images)
 
             #############################
@@ -393,8 +392,7 @@ def main(_):
         for end_point in end_points:
             x = end_points[end_point]
             summaries.add(tf.summary.histogram('activations/' + end_point, x))
-            summaries.add(tf.summary.scalar('sparsity/' + end_point,
-                                            tf.nn.zero_fraction(x)))
+            summaries.add(tf.summary.scalar('sparsity/' + end_point, tf.nn.zero_fraction(x)))
 
         # Add summaries for losses.
         for loss in tf.get_collection(tf.GraphKeys.LOSSES, first_clone_scope):
@@ -409,8 +407,7 @@ def main(_):
         #################################
         if FLAGS.moving_average_decay:
             moving_average_variables = slim.get_model_variables()
-            variable_averages = tf.train.ExponentialMovingAverage(
-                FLAGS.moving_average_decay, global_step)
+            variable_averages = tf.train.ExponentialMovingAverage(FLAGS.moving_average_decay, global_step)
         else:
             moving_average_variables, variable_averages = None, None
 
@@ -462,7 +459,7 @@ def main(_):
         # Kicks off the training. #
         ###########################
         slim.learning.train(train_tensor,
-                            logdir=FLAGS.train_dir,
+                            logdir=FLAGS.log_dir,
                             master=FLAGS.master,
                             is_chief=(FLAGS.task == 0),
                             init_fn=_get_init_fn(),
@@ -471,7 +468,8 @@ def main(_):
                             log_every_n_steps=FLAGS.log_every_n_steps,
                             save_summaries_secs=FLAGS.save_summaries_secs,
                             save_interval_secs=FLAGS.save_interval_secs,
-                            sync_optimizer=optimizer if FLAGS.sync_replicas else None)
+                            sync_optimizer=optimizer if FLAGS.sync_replicas else None
+                            )
 
 if __name__ == '__main__':
     tf.app.run()

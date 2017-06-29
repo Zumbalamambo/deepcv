@@ -1,4 +1,3 @@
-
 """Contains utilities for downloading and converting datasets."""
 from __future__ import absolute_import
 from __future__ import division
@@ -61,12 +60,12 @@ def download_and_uncompress_tarball(tarball_url, dataset_dir):
     filepath = os.path.join(dataset_dir, filename)
 
     def _progress(count, block_size, total_size):
-        sys.stdout.write('\r>> Downloading %s %.1f%%' % (
-            filename, float(count * block_size) / float(total_size) * 100.0))
+        sys.stdout.write('\r>> Downloading %s %.1f%%' % (filename,
+                                                         float(count * block_size) / float(total_size) * 100.0))
         sys.stdout.flush()
 
     filepath, _ = urllib.request.urlretrieve(tarball_url, filepath, _progress)
-    print()
+
     statinfo = os.stat(filepath)
     print('Successfully downloaded', filename, statinfo.st_size, 'bytes.')
     tarfile.open(filepath, 'r:gz').extractall(dataset_dir)

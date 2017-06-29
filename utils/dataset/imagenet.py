@@ -151,6 +151,7 @@ def get_split(split_name, dataset_dir, file_pattern=None, reader=None):
         keys_to_features, items_to_handlers)
 
     labels_to_names = None
+
     if dataset_util.has_labels(dataset_dir):
         labels_to_names = dataset_util.read_label_file(dataset_dir)
     else:

@@ -1,32 +1,26 @@
 import os
 import sys
 import tqdm
-import gzip
-import tarfile
-import zipfile
 import bs4
 import importlib
 import inspect
 import numpy as np
 import pandas as pandas
-from PIL import Image
 import tensorflow as tf
 import utils.tfsys as tfsys
 import utils.tfimage as tfimage
 import utils.dataset.cifar10 as cifar10
-
-'''
-# classfication dataset
-'''
+import utils.dataset.voc as voc
 
 
-def download_covert2record(args):
+def download_covert(config, args):
 
     if args.dataset_name == 'cifar10':
-        cifar10_dir = os.path.join('cache', 'dataset', 'cifar10')
-        cifar10.conver2record(cifar10_dir)
+        cifar10.convert_to_tfrecord(config)
+    elif args.dataset_name == 'voc':
+        voc.convert_to_tfrecord(config)
     else:
-        raise ValueError('[%s] is not known' % args.dataset_name)
+        raise ValueError('%s is not known' % args.dataset_name)
 
 
 def cache(config, args):

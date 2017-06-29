@@ -20,9 +20,8 @@ Can we make computer vision like our eyes?
 ## Prepare data
 ```shell
 $ python main.py --config=config/dataset/pascal_voc.cfg
-                 --app=tfrecord
-                 --year=VOC2007
-                 --set=train or val or test
+                 --app=dataset
+
 ```
 
 ## classification
@@ -38,13 +37,12 @@ $ python main.py --config=config/vgg/vgg_16.cfg
 ### train a classification model from scratch
 ```shell
 DATASET_DIR=cache/dataset/imagenet
-TRAIN_DIR=cache/log/vgg_16
+LOG_DIR=cache/log/vgg_16
 python train_classifier.py --model_name=vgg_16
-                           --train_dir=${TRAIN_DIR}
+                           --log_dir=${LOG_DIR}
                            --dataset_dir=${DATASET_DIR}
                            --dataset_name=imagenet
                            --dataset_split_name=train
-                           --model_name=vgg_16
 ```
 
 ### fine-tuning a classification model from an existing checkpoint
@@ -52,10 +50,10 @@ python train_classifier.py --model_name=vgg_16
 $ DATASET_DIR=cache/dataset/imagenet
 $ TRAIN_DIR=cache/log/vgg_16
 $ CHECKPOINT_PATH=cache/weight/vgg_16.ckpt
-$ python train_classifier.py --model_name=inception_v3
+$ python train_classifier.py --model_name=vgg_16
                              --train_dir=${TRAIN_DIR}
                              --dataset_dir=${DATASET_DIR}
-                             --dataset_name=flowers
+                             --dataset_name=imagenet
                              --dataset_split_name=train
                              --checkpoint_path=${CHECKPOINT_PATH}
 ```
