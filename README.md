@@ -24,7 +24,7 @@ $ python main.py --config=config/dataset/pascal_voc.cfg
 
 ```
 
-## classification
+## Classification
 ### classify
 ```shell
 $ FILE_PATH = ~/dataset/test.jpg
@@ -57,7 +57,8 @@ $ python train_classifier.py --model_name=vgg_16
                              --dataset_split_name=train
                              --checkpoint_path=${CHECKPOINT_PATH}
 ```
-### YOLO Detection
+## Detection
+### detect
 ```shell
 $ FILE_PATH = ~/dataset/test.jpg
 $ python main.py  --config=config/ssd/ssd_v1.cfg \

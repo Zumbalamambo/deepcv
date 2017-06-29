@@ -87,6 +87,9 @@ def classify_image_local(config, args):
 
         if args.show:
             pass
+
+        sess.close()
+
     return top5_result
 
 
@@ -148,6 +151,7 @@ def classify_iamge_remote(config, args):
 
         if args.show:
             pass
+        sess.close()
 
     return top5_result
 

@@ -51,16 +51,23 @@ def detect_image_local(config, args):
     category_index = label_map_util.create_category_index(categories)
     IMAGE_SIZE = (12, 8)
 
-    with detection_graph.as_default():
-        with tf.Session(config=tf.ConfigProto(allow_soft_placement=True), graph=detection_graph) as sess:
+    if args.gpu:
+        sess_cfg = tf.ConfigProto()
+        sess_cfg.gpu_options.allow_growth = True
+        sess = tf.Session(config=sess_cfg, graph=detection_graph)
+    else:
+        sess = tf.Session(graph=detection_graph)
 
-            image_tensor = detection_graph.get_tensor_by_name('image_tensor:0')
-            boxes = detection_graph.get_tensor_by_name('detection_boxes:0')
-            scores = detection_graph.get_tensor_by_name('detection_scores:0')
-            classes = detection_graph.get_tensor_by_name('detection_classes:0')
-            num_detections = detection_graph.get_tensor_by_name('num_detections:0')
+    # with detection_graph.as_default():
+    with sess:
 
-            (boxes, scores, classes, num_detections) = sess.run([boxes, scores, classes, num_detections],
+        image_tensor = detection_graph.get_tensor_by_name('image_tensor:0')
+        boxes = detection_graph.get_tensor_by_name('detection_boxes:0')
+        scores = detection_graph.get_tensor_by_name('detection_scores:0')
+        classes = detection_graph.get_tensor_by_name('detection_classes:0')
+        num_detections = detection_graph.get_tensor_by_name('num_detections:0')
+
+        (boxes, scores, classes, num_detections) = sess.run([boxes, scores, classes, num_detections],
                                                                 feed_dict={image_tensor: image})
     result = []
     if args.print:
@@ -81,6 +88,8 @@ def detect_image_local(config, args):
         plt.figure(figsize=IMAGE_SIZE)
         plt.imshow(image_np)
         plt.show()
+
+    sess.close()
 
     return result
 
