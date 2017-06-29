@@ -4,12 +4,14 @@ from __future__ import print_function
 
 import tensorflow as tf
 
-import utils.dataset.dataset_factory as dataset_factory
 import model.deployment.model_deploy as model_deploy
 import model.classification.classifier_factory as classifier_factory
 import utils.preprocessing.preprocessing_factory as preprocessing_factory
+import utils.tfdata as tfdata
+
 
 slim = tf.contrib.slim
+
 
 tf.app.flags.DEFINE_string('master', '', 'The address of the TensorFlow master to use.')
 
@@ -316,7 +318,7 @@ def main(_):
         ######################
         # Select the dataset #
         ######################
-        dataset = dataset_factory.get_dataset(FLAGS.dataset_name, FLAGS.dataset_split_name, FLAGS.dataset_dir)
+        dataset = tfdata.get_dataset(FLAGS.dataset_name, FLAGS.dataset_split_name, FLAGS.dataset_dir)
 
         ######################
         # Select the network #

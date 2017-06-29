@@ -9,18 +9,28 @@ import pandas as pandas
 import tensorflow as tf
 import utils.tfsys as tfsys
 import utils.tfimage as tfimage
+
 import utils.dataset.cifar10 as cifar10
+import utils.dataset.imagenet as imagenet
 import utils.dataset.voc as voc
 
+datasets_map = {'cifar10': cifar10,
+                'imagenet': imagenet,
+                'voc': voc,
+                }
 
-def download_covert(config, args):
 
-    if args.dataset_name == 'cifar10':
-        cifar10.convert_to_tfrecord(config)
-    elif args.dataset_name == 'voc':
-        voc.convert_to_tfrecord(config)
-    else:
-        raise ValueError('%s is not known' % args.dataset_name)
+def get_dataset(name, split_name, dataset_dir, file_pattern=None, reader=None):
+    if name not in datasets_map:
+        raise ValueError('%s dataset is unknown' % name)
+    return datasets_map[name].get_split(split_name, dataset_dir, file_pattern, reader)
+
+
+def download_convert(config, args):
+    if args.dataset_name not in datasets_map:
+        raise ValueError('%s dataset is unkown' % args.name)
+    datasets_map[args.dataset_name].convert_to_tfrecord(config)
+
 
 
 def cache(config, args):

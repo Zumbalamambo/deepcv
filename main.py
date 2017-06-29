@@ -1,11 +1,12 @@
+import time
 import argparse
 import configparser
-import time
 import app.yolo as yolo
 import app.classifier as classifier
 import app.detector as detector
 import utils.tfsys as tfsys
 import utils.tfdata as tfdata
+
 
 def main():
     parser = argparse.ArgumentParser("[DeepCV]")
@@ -29,7 +30,7 @@ def main():
     tfsys.load_config(config, args.config)
     start_time = time.time()
     if args.app == 'dataset':
-        tfdata.download_covert(config, args)
+        tfdata.download_convert(config, args)
     elif args.app == 'classifier':
         classifier.run(config, args)
     elif args.app == 'detector':

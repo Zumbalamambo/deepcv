@@ -29,21 +29,24 @@ Example usage:
 import functools
 import json
 import os
-import tensorflow as tf
 
+import tensorflow as tf
 from google.protobuf import text_format
 
-import model.detection.trainer as trainer
-import model.detection.builders.input_reader_builder as input_reader_builder
-import model.detection.builders.model_builder as model_builder
 import model.detection.protos.input_reader_pb2 as input_reader_pb2
 import model.detection.protos.model_pb2 as model_pb2
 import model.detection.protos.pipeline_pb2 as pipeline_pb2
 import model.detection.protos.train_pb2 as train_pb2
 
+import model.detection.builders.input_reader_builder as input_reader_builder
+import model.detection.builders.model_builder as model_builder
+
+import model.detection.trainer as trainer
+
 tf.logging.set_verbosity(tf.logging.INFO)
 
 flags = tf.app.flags
+
 flags.DEFINE_string('master', '', 'BNS name of the TensorFlow master to use.')
 flags.DEFINE_integer('task', 0, 'task id')
 flags.DEFINE_integer('num_clones', 1, 'Number of clones to deploy per worker.')
@@ -56,7 +59,7 @@ flags.DEFINE_integer('worker_replicas', 1, 'Number of worker+trainer '
 flags.DEFINE_integer('ps_tasks', 0,
                      'Number of parameter server tasks. If None, does not use '
                      'a parameter server.')
-flags.DEFINE_string('train_dir', '',
+flags.DEFINE_string('log_dir', '',
                     'Directory to save the checkpoints and training summaries.')
 
 flags.DEFINE_string('pipeline_config_path', '',
@@ -123,19 +126,16 @@ def get_configs_from_multiple_files():
 
 
 def main(_):
-    assert FLAGS.train_dir, '`train_dir` is missing.'
+    assert FLAGS.log_dir, '`log_dir` is missing.'
+
     if FLAGS.pipeline_config_path:
         model_config, train_config, input_config = get_configs_from_pipeline_file()
     else:
         model_config, train_config, input_config = get_configs_from_multiple_files()
 
-    model_fn = functools.partial(
-        model_builder.build,
-        model_config=model_config,
-        is_training=True)
+    model_fn = functools.partial(model_builder.build, model_config=model_config, is_training=True)
 
-    create_input_dict_fn = functools.partial(
-        input_reader_builder.build, input_config)
+    create_input_dict_fn = functools.partial(input_reader_builder.build, input_config)
 
     env = json.loads(os.environ.get('TF_CONFIG', '{}'))
     cluster_data = env.get('cluster', None)
@@ -176,7 +176,7 @@ def main(_):
 
     trainer.train(create_input_dict_fn, model_fn, train_config, master, task,
                   FLAGS.num_clones, worker_replicas, FLAGS.clone_on_cpu, ps_tasks,
-                  worker_job_name, is_chief, FLAGS.train_dir)
+                  worker_job_name, is_chief, FLAGS.log_dir)
 
 
 if __name__ == '__main__':

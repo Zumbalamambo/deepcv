@@ -48,16 +48,21 @@ python train_classifier.py --model_name=vgg_16
 ### fine-tuning a classification model from an existing checkpoint
 ```shell
 $ DATASET_DIR=cache/dataset/imagenet
-$ TRAIN_DIR=cache/log/vgg_16
+$ LOG_DIR=cache/log/vgg_16
 $ CHECKPOINT_PATH=cache/weight/vgg_16.ckpt
 $ python train_classifier.py --model_name=vgg_16
-                             --train_dir=${TRAIN_DIR}
+                             --log_dir=${LOG_DIR}
                              --dataset_dir=${DATASET_DIR}
                              --dataset_name=imagenet
                              --dataset_split_name=train
                              --checkpoint_path=${CHECKPOINT_PATH}
 ```
 ## Detection
+### protobuf compilation
+From deepcv/
+```shell
+$ protoc model/detection/protos/*.proto --python_out=.
+```
 ### detect
 ```shell
 $ FILE_PATH = ~/dataset/test.jpg

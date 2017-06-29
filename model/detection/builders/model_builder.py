@@ -1,4 +1,13 @@
 """A function to build a DetectionModel from configuration."""
+import model.detection.meta_architectures.faster_rcnn_meta_arch as faster_rcnn_meta_arch
+import model.detection.meta_architectures.rfcn_meta_arch as rfcn_meta_arch
+import model.detection.meta_architectures.ssd_meta_arch as ssd_meta_arch
+
+import model.detection.feature_extractor.faster_rcnn_inception_resnet_v2_feature_extractor as frcnn_inc_res
+import model.detection.feature_extractor.faster_rcnn_resnet_v1_feature_extractor as frcnn_resnet_v1
+import model.detection.feature_extractor.ssd_inception_v2_feature_extractor as SSDInceptionV2FeatureExtractor
+import model.detection.feature_extractor.ssd_mobilenet_v1_feature_extractor as SSDMobileNetV1FeatureExtractor
+from model.detection import protos as model_pb2
 from model.detection.builders import anchor_generator_builder
 from model.detection.builders import box_coder_builder
 from model.detection.builders import box_predictor_builder
@@ -9,14 +18,6 @@ from model.detection.builders import matcher_builder
 from model.detection.builders import post_processing_builder
 from model.detection.builders import region_similarity_calculator_builder as sim_calc
 from model.detection.core import box_predictor
-import model.detection.meta_architectures.faster_rcnn_meta_arch as faster_rcnn_meta_arch
-import model.detection.meta_architectures.rfcn_meta_arch as rfcn_meta_arch
-import model.detection.meta_architectures.ssd_meta_arch as ssd_meta_arch
-import model.detection.feature_extractor.faster_rcnn_inception_resnet_v2_feature_extractor as frcnn_inc_res
-import model.detection.feature_extractor.faster_rcnn_resnet_v1_feature_extractor as frcnn_resnet_v1
-import model.detection.feature_extractor.ssd_inception_v2_feature_extractor as SSDInceptionV2FeatureExtractor
-import model.detection.feature_extractor.ssd_mobilenet_v1_feature_extractor as SSDMobileNetV1FeatureExtractor
-import model.detection.protos.model_pb2 as model_pb2
 
 # A map of names to SSD feature extractors.
 SSD_FEATURE_EXTRACTOR_CLASS_MAP = {

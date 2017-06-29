@@ -2,7 +2,7 @@
 import functools
 
 import model.detection.core.preprocessor as preprocessor
-import model.detection.protos.image_resizer_pb2 as image_resizer_pb2
+from model.detection import protos as image_resizer_pb2
 
 
 def build(image_resizer_config):

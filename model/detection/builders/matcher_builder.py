@@ -2,7 +2,8 @@
 
 import model.detection.matchers.argmax_matcher as argmax_matcher
 import model.detection.matchers.bipartite_matcher as bipartite_matcher
-import model.detection.protos.matcher_pb2 as matcher_pb2
+
+from model.detection import protos as matcher_pb2
 
 
 def build(matcher_config):

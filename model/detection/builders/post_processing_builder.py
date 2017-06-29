@@ -2,8 +2,9 @@
 import functools
 
 import tensorflow as tf
+
 import model.detection.core.post_processing as post_processing
-import model.detection.protos.post_processing_pb2 as post_processing_pb2
+from model.detection import protos as post_processing_pb2
 
 
 def build(post_processing_config):

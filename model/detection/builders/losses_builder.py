@@ -1,7 +1,7 @@
 """A function to build localization and classification losses from config."""
 
 import model.detection.core.losses as losses
-import model.detection.protos.losses_pb2 as losses_pb2
+from model.detection import protos as losses_pb2
 
 
 def build(loss_config):
