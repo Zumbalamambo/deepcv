@@ -12,7 +12,7 @@ same preprocessing, batch norm scaling, etc.
 import tensorflow as tf
 
 import model.detection.meta_architectures.faster_rcnn_meta_arch as faster_rcnn_meta_arch
-import model.classification.resnet_utils as resnet_utils
+import model.classification.resnet_util as resnet_util
 import model.classification.resnet_v1 as resnet_v1
 
 slim = tf.contrib.slim
@@ -95,7 +95,7 @@ class FasterRCNNResnetV1FeatureExtractor(
       # Disables batchnorm for fine-tuning with smaller batch sizes.
       # TODO: Figure out if it is needed when image batch size is bigger.
       with slim.arg_scope(
-          resnet_utils.resnet_arg_scope(
+          resnet_util.resnet_arg_scope(
               batch_norm_epsilon=1e-5,
               batch_norm_scale=True,
               weight_decay=self._weight_decay)):
@@ -129,19 +129,19 @@ class FasterRCNNResnetV1FeatureExtractor(
     """
     with tf.variable_scope(self._architecture, reuse=self._reuse_weights):
       with slim.arg_scope(
-          resnet_utils.resnet_arg_scope(
+          resnet_util.resnet_arg_scope(
               batch_norm_epsilon=1e-5,
               batch_norm_scale=True,
               weight_decay=self._weight_decay)):
         with slim.arg_scope([slim.batch_norm], is_training=False):
           blocks = [
-              resnet_utils.Block('block4', resnet_v1.bottleneck, [{
+              resnet_util.Block('block4', resnet_v1.bottleneck, [{
                   'depth': 2048,
                   'depth_bottleneck': 512,
                   'stride': 1
               }] * 3)
           ]
-          proposal_classifier_features = resnet_utils.stack_blocks_dense(
+          proposal_classifier_features = resnet_util.stack_blocks_dense(
               proposal_feature_maps, blocks)
     return proposal_classifier_features
 

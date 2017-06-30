@@ -54,24 +54,17 @@ flags.DEFINE_boolean('clone_on_cpu', False,
                      'Force clones to be deployed on CPU.  Note that even if '
                      'set to False (allowing ops to run on gpu), some ops may '
                      'still be run on the CPU if they have no GPU kernel.')
-flags.DEFINE_integer('worker_replicas', 1, 'Number of worker+trainer '
-                                           'replicas.')
-flags.DEFINE_integer('ps_tasks', 0,
-                     'Number of parameter server tasks. If None, does not use '
-                     'a parameter server.')
-flags.DEFINE_string('log_dir', '',
-                    'Directory to save the checkpoints and training summaries.')
+flags.DEFINE_integer('worker_replicas', 1, 'Number of worker+trainer replicas.')
+flags.DEFINE_integer('ps_tasks', 0, 'Number of parameter server tasks. If None, does not use a parameter server.')
+flags.DEFINE_string('log_dir', '', 'Directory to save the checkpoints and training summaries.')
 
 flags.DEFINE_string('pipeline_config_path', '',
                     'Path to a pipeline_pb2.TrainEvalPipelineConfig config '
                     'file. If provided, other configs are ignored')
 
-flags.DEFINE_string('train_config_path', '',
-                    'Path to a train_pb2.TrainConfig config file.')
-flags.DEFINE_string('input_config_path', '',
-                    'Path to an input_reader_pb2.InputReader config file.')
-flags.DEFINE_string('model_config_path', '',
-                    'Path to a model_pb2.DetectionModel config file.')
+flags.DEFINE_string('train_config_path', '', 'Path to a train_pb2.TrainConfig config file.')
+flags.DEFINE_string('input_config_path', '', 'Path to an input_reader_pb2.InputReader config file.')
+flags.DEFINE_string('model_config_path', '', 'Path to a model_pb2.DetectionModel config file.')
 
 FLAGS = flags.FLAGS
 

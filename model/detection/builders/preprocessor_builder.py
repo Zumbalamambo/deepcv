@@ -3,7 +3,7 @@
 import tensorflow as tf
 
 import model.detection.core.preprocessor as preprocessor
-from model.detection import protos as preprocessor_pb2
+import model.detection.protos.preprocessor_pb2 as preprocessor_pb2
 
 
 def _get_step_config_from_proto(preprocessor_step_config, step_name):
