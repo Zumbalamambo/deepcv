@@ -7,17 +7,18 @@ import model.detection.feature_extractor.faster_rcnn_inception_resnet_v2_feature
 import model.detection.feature_extractor.faster_rcnn_resnet_v1_feature_extractor as frcnn_resnet_v1
 import model.detection.feature_extractor.ssd_inception_v2_feature_extractor as SSDInceptionV2FeatureExtractor
 import model.detection.feature_extractor.ssd_mobilenet_v1_feature_extractor as SSDMobileNetV1FeatureExtractor
-from model.detection import protos as model_pb2
-from model.detection.builders import anchor_generator_builder
-from model.detection.builders import box_coder_builder
-from model.detection.builders import box_predictor_builder
-from model.detection.builders import hyperparams_builder
-from model.detection.builders import image_resizer_builder
-from model.detection.builders import losses_builder
-from model.detection.builders import matcher_builder
-from model.detection.builders import post_processing_builder
-from model.detection.builders import region_similarity_calculator_builder as sim_calc
-from model.detection.core import box_predictor
+
+import model.detection.protos.model_pb2 as model_pb2
+import model.detection.builders.anchor_generator_builder as anchor_generator_builder
+import model.detection.builders.box_coder_builder as box_coder_builder
+import model.detection.builders.box_predictor_builder as box_predictor_builder
+import model.detection.builders.hyperparams_builder as hyperparams_builder
+import model.detection.builders.image_resizer_builder as image_resizer_builder
+import model.detection.builders.losses_builder as losses_builder
+import model.detection.builders.matcher_builder as matcher_builder
+import model.detection.builders.post_processing_builder as post_processing_builder
+import model.detection.builders.region_similarity_calculator_builder as sim_calc
+import model.detection.core.box_predictor as box_predictor
 
 # A map of names to SSD feature extractors.
 SSD_FEATURE_EXTRACTOR_CLASS_MAP = {

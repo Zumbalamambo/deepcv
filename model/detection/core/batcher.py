@@ -55,8 +55,7 @@ class BatchQueue(object):
         Args:
           tensor_dict: dictionary of tensors to batch.
           batch_size: batch size.
-          batch_queue_capacity: max capacity of the queue from which the tensors are
-            batched.
+          batch_queue_capacity: max capacity of the queue from which the tensors are batched.
           num_batch_queue_threads: number of threads to use for batching.
           prefetch_queue_capacity: max capacity of the queue used to prefetch
             assembled batches.
@@ -70,12 +69,12 @@ class BatchQueue(object):
              for key, tensor in tensor_dict.items()})
         all_tensors = tensor_dict
         all_tensors.update(runtime_shapes)
-        batched_tensors = tf.train.batch(
-            all_tensors,
-            capacity=batch_queue_capacity,
-            batch_size=batch_size,
-            dynamic_pad=True,
-            num_threads=num_batch_queue_threads)
+        batched_tensors = tf.train.batch(all_tensors,
+                                         capacity=batch_queue_capacity,
+                                         batch_size=batch_size,
+                                         dynamic_pad=True,
+                                         num_threads=num_batch_queue_threads,
+                                         )
 
         self._queue = prefetcher.prefetch(batched_tensors,
                                           prefetch_queue_capacity)

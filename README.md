@@ -21,7 +21,7 @@ Can we make computer vision like our eyes?
 ```shell
 $ python main.py --config=config/dataset/pascal_voc.cfg
                  --app=dataset
-
+                 --dataset_name = voc
 ```
 
 ## Classification
@@ -71,7 +71,12 @@ $ python main.py  --config=config/ssd/ssd_v1.cfg \
                   --task=detect \
                   --file=$FILE_PATH
 ```
-
+### train a detection model
+```shell
+$ PIPELINE_CONFIG_PATH = config/train_detection/faster_rcnn_resnet101_voc007.config
+$ python main.py  --log_dir=cache/log/faster_rcnn/resnet/voc007
+                  --pipeline_config_path = ${PIPELINE_CONFIG_PATH}
+```
 ## Pre-trained Models
 
 Model | TF-Slim File | Checkpoint | Top-1 Accuracy| Top-5 Accuracy |

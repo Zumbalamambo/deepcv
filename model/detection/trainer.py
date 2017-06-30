@@ -118,7 +118,7 @@ def _create_losses(input_queue, create_model_fn):
         tf.losses.add_loss(loss_tensor)
 
 
-def train_distributed(create_tensor_dict_fn, create_model_fn, train_config, master, task, num_clones, worker_replicas,
+def train(create_tensor_dict_fn, create_model_fn, train_config, master, task, num_clones, worker_replicas,
                       clone_on_cpu, ps_tasks, worker_job_name, is_chief, train_dir):
     """Training function for detection models.
 
@@ -261,74 +261,3 @@ def train_distributed(create_tensor_dict_fn, create_model_fn, train_config, mast
             sync_optimizer=sync_optimizer,
             saver=saver)
 
-
-def train_stand_alone(create_tensor_dict_fn, create_model_fn, train_config, config, args):
-    """Training function for detection models.
-
-    Args:
-      create_tensor_dict_fn: a function to create a tensor input dictionary.
-      create_model_fn: a function that creates a DetectionModel and generates losses.
-      train_config: a train_pb2.TrainConfig protobuf.
-      master: BNS name of the TensorFlow master to use.
-      task: The task id of this training instance.
-      num_clones: The number of clones to run per machine.
-      worker_replicas: The number of work replicas to train with.
-      clone_on_cpu: True if clones should be forced to run on CPU.
-      ps_tasks: Number of parameter server tasks.
-      worker_job_name: Name of the worker job.
-      is_chief: Whether this replica is the chief replica.
-      train_dir: Directory to write checkpoints and training summaries to.
-    """
-
-    detection_model = create_model_fn()
-    # data_augmentation_options = [preprocessor_builder.build(step) for step in train_config.data_augmentation_options]
-    train_dir = config.get('train', 'directory')
-    num_clones = config.get('train', 'num_clones')
-    clone_on_cpu = config.get('train', 'clone_on_cpu')
-    worker_job_name = config.get('train', 'worker_job_name')
-
-    with tf.Graph().as_default():
-
-        global_step = slim.create_global_step()
-
-        input_queue = _create_input_queue(train_config.batch_size,
-                                          create_tensor_dict_fn,
-                                          train_config.batch_queue_capacity,
-                                          train_config.num_batch_queue_threads,
-                                          train_config.prefetch_queue_capacity,
-                                          )
-
-
-        training_optimizer = optimizer_builder.build(train_config.optimizer)
-
-
-        # model_fn = functools.partial(_create_losses, create_model_fn=create_model_fn)
-        # clones = model_deploy.create_clones(deploy_config, model_fn, [input_queue])
-        # first_clone_scope = clones[0].scope
-
-        # Gather update_ops from the first clone. These contain, for example,
-        # the updates for the batch_norm variables created by model_fn.
-        update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
-
-
-        total_loss = []
-        grads_and_vars = []
-        grad_updates = training_optimizer.apply_gradients(grads_and_vars, global_step=global_step)
-        update_ops.append(grad_updates)
-
-        update_op = tf.group(*update_ops)
-        with tf.control_dependencies([update_op]):
-            train_tensor = tf.identity(total_loss, name='train_op')
-
-        # Soft placement allows placing on CPU ops without GPU implementation.
-        session_config = tf.ConfigProto(allow_soft_placement=True, log_device_placement=False)
-
-        # Save checkpoints regularly.
-        keep_checkpoint_every_n_hours = train_config.keep_checkpoint_every_n_hours
-        saver = tf.train.Saver(keep_checkpoint_every_n_hours=keep_checkpoint_every_n_hours)
-
-        slim.learning.train(train_tensor, logdir=train_dir,
-                            session_config=session_config, startup_delay_steps=train_config.startup_delay_steps,
-                            init_fn=init_fn, summary_op=summary_op,
-                            number_of_steps=(train_config.num_steps if train_config.num_steps else None),
-                            save_summaries_secs=120, sync_optimizer=sync_optimizer, saver=saver)

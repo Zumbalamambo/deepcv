@@ -8,10 +8,10 @@ Detection configuration framework, they should define their own builder function
 that wraps the build function.
 """
 
-import model.detection.data_decoders.tf_example_decoder as tf_example_decoder
 import tensorflow as tf
 
-from model.detection import protos as input_reader_pb2
+import model.detection.data_decoders.tf_example_decoder as tf_example_decoder
+import model.detection.protos.input_reader_pb2 as input_reader_pb2
 
 parallel_reader = tf.contrib.slim.parallel_reader
 

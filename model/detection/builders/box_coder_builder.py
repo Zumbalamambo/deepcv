@@ -2,7 +2,7 @@
 import model.detection.box_coders.faster_rcnn_box_coder as faster_rcnn_box_coder
 import model.detection.box_coders.mean_stddev_box_coder as mean_stddev_box_coder
 import model.detection.box_coders.square_box_coder as square_box_coder
-from model.detection import protos as box_coder_pb2
+import model.detection.protos.box_coder_pb2 as box_coder_pb2
 
 
 def build(box_coder_config):

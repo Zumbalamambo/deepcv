@@ -2,7 +2,7 @@
 
 import model.detection.anchor_generators.grid_anchor_generator as grid_anchor_generator
 import model.detection.anchor_generators.multiple_grid_anchor_generator as multiple_grid_anchor_generator
-from model.detection import protos as anchor_generator_pb2
+import model.detection.protos.anchor_generator_pb2 as anchor_generator_pb2
 
 
 def build(anchor_generator_config):

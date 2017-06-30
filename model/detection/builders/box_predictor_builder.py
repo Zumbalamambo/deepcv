@@ -1,7 +1,7 @@
 """Function to build box predictor from configuration."""
 
 import model.detection.core.box_predictor as box_predictor
-from model.detection import protos as box_predictor_pb2
+import model.detection.protos.box_predictor_pb2 as box_predictor_pb2
 
 
 def build(argscope_fn, box_predictor_config, is_training, num_classes):

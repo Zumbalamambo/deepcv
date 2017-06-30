@@ -30,21 +30,21 @@ Running:
 import numpy as np
 import tensorflow as tf
 
-
+flags = tf.app.flags
 # Flags for defining the tf.train.ClusterSpec
-tf.app.flags.DEFINE_string('ps_hosts', '', 'comma-separated list of hostname: port pairs')
-tf.app.flags.DEFINE_string('worker_hosts', '', 'comma-separated list of hostname: port pairs')
+flags.DEFINE_string('ps_hosts', '', 'comma-separated list of hostname: port pairs')
+flags.DEFINE_string('worker_hosts', '', 'comma-separated list of hostname: port pairs')
 
 # Flags for defining the tf.train.Server
-tf.app.flags.DEFINE_string('job_name', '', "one of 'ps', 'worker' ")
-tf.app.flags.DEFINE_integer('task_index', '', "index of task within the job")
+flags.DEFINE_string('job_name', '', "one of 'ps', 'worker' ")
+flags.DEFINE_integer('task_index', '', "index of task within the job")
 
-tf.app.flags.DEFINE_integer('is_sync', 0, 'to use asynchronous or synchronous distributed')
+flags.DEFINE_integer('is_sync', 0, 'to use asynchronous or synchronous distributed')
 
-tf.app.flags.DEFINE_float('learning_rate', 0.00003, 'initial learning rate')
-tf.app.flags.DEFINE_integer('step_to_validate', 1000, 'step to validate & print loss')
+flags.DEFINE_float('learning_rate', 0.00003, 'initial learning rate')
+flags.DEFINE_integer('step_to_validate', 1000, 'step to validate & print loss')
 
-FLAGS = tf.app.flags.FLAGS
+FLAGS = flags.FLAGS
 
 
 def main(_):

@@ -1,7 +1,7 @@
 """Builder for region similarity calculators."""
 
 import model.detection.core.region_similarity_calculator as region_similarity_calculator
-from model.detection import protos as region_similarity_calculator_pb2
+import model.detection.protos.region_similarity_calculator_pb2 as region_similarity_calculator_pb2
 
 
 def build(region_similarity_calculator_config):

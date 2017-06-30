@@ -1,7 +1,7 @@
 """Builder function to construct tf-slim arg_scope for convolution, fc ops."""
 import tensorflow as tf
 
-from model.detection import protos as hyperparams_pb2
+import model.detection.protos.hyperparams_pb2 as hyperparams_pb2
 
 slim = tf.contrib.slim
 

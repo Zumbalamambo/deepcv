@@ -56,6 +56,7 @@ flags.DEFINE_boolean('clone_on_cpu', False,
                      'still be run on the CPU if they have no GPU kernel.')
 flags.DEFINE_integer('worker_replicas', 1, 'Number of worker+trainer replicas.')
 flags.DEFINE_integer('ps_tasks', 0, 'Number of parameter server tasks. If None, does not use a parameter server.')
+
 flags.DEFINE_string('log_dir', '', 'Directory to save the checkpoints and training summaries.')
 
 flags.DEFINE_string('pipeline_config_path', '',
@@ -150,7 +151,7 @@ def main(_):
     if cluster_data and 'ps' in cluster_data:
         ps_tasks = len(cluster_data['ps'])
 
-    if worker_replicas > 1 and ps_tasks < 1:
+    if worker_replicas > 1 > ps_tasks:
         raise ValueError('At least 1 ps task is needed for distributed training.')
 
     if worker_replicas >= 1 and ps_tasks > 0:
