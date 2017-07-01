@@ -96,6 +96,7 @@ class TfExampleDecoder(data_decoder.DataDecoder):
         keys = decoder.list_items()
         tensors = decoder.decode(serialized_example, items=keys)
         tensor_dict = dict(zip(keys, tensors))
+
         is_crowd = fields.InputDataFields.groundtruth_is_crowd
         tensor_dict[is_crowd] = tf.cast(tensor_dict[is_crowd], dtype=tf.bool)
         tensor_dict[fields.InputDataFields.image].set_shape([None, None, 3])

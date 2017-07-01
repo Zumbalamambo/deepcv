@@ -48,8 +48,7 @@ class BatchQueue(object):
     network use the input pipeline example mentioned in core/prefetcher.py.
     """
 
-    def __init__(self, tensor_dict, batch_size, batch_queue_capacity,
-                 num_batch_queue_threads, prefetch_queue_capacity):
+    def __init__(self, tensor_dict, batch_size, batch_queue_capacity, num_batch_queue_threads, prefetch_queue_capacity):
         """Constructs a batch queue holding tensor_dict.
 
         Args:
@@ -57,18 +56,21 @@ class BatchQueue(object):
           batch_size: batch size.
           batch_queue_capacity: max capacity of the queue from which the tensors are batched.
           num_batch_queue_threads: number of threads to use for batching.
-          prefetch_queue_capacity: max capacity of the queue used to prefetch
-            assembled batches.
+          prefetch_queue_capacity: max capacity of the queue used to prefetch assembled batches.
         """
         # Remember static shapes to set shapes of batched tensors.
-        static_shapes = collections.OrderedDict(
-            {key: tensor.get_shape() for key, tensor in tensor_dict.items()})
+        static_shapes = collections.OrderedDict({key: tensor.get_shape() for key, tensor in tensor_dict.items()})
+
         # Remember runtime shapes to unpad tensors after batching.
         runtime_shapes = collections.OrderedDict(
-            {(key, 'runtime_shapes'): tf.shape(tensor)
-             for key, tensor in tensor_dict.items()})
+            {(key, 'runtime_shapes'): tf.shape(tensor) for key, tensor in tensor_dict.items()}
+        )
+
         all_tensors = tensor_dict
         all_tensors.update(runtime_shapes)
+
+        print(all_tensors)
+
         batched_tensors = tf.train.batch(all_tensors,
                                          capacity=batch_queue_capacity,
                                          batch_size=batch_size,
@@ -76,10 +78,10 @@ class BatchQueue(object):
                                          num_threads=num_batch_queue_threads,
                                          )
 
-        self._queue = prefetcher.prefetch(batched_tensors,
-                                          prefetch_queue_capacity)
+        self._queue = prefetcher.prefetch(batched_tensors,prefetch_queue_capacity)
         self._static_shapes = static_shapes
         self._batch_size = batch_size
+
 
     def dequeue(self):
         """Dequeues a batch of tensor_dict from the BatchQueue.
