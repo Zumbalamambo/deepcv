@@ -57,6 +57,7 @@ $ python train_classifier.py --model_name=vgg_16
                              --dataset_split_name=train
                              --checkpoint_path=${CHECKPOINT_PATH}
 ```
+
 ## Detection
 ### protobuf compilation
 From deepcv/
