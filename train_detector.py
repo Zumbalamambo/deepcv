@@ -148,6 +148,7 @@ def main(_):
     if cluster_data and 'worker' in cluster_data:
         # Number of total worker replicas include "worker"s and the "master".
         worker_replicas = len(cluster_data['worker']) + 1
+
     if cluster_data and 'ps' in cluster_data:
         ps_tasks = len(cluster_data['ps'])
 
@@ -168,9 +169,9 @@ def main(_):
         is_chief = (task_info.type == 'master')
         master = server.target
 
-    trainer.train(create_input_dict_fn, model_fn, train_config, master, task,
-                  FLAGS.num_clones, worker_replicas, FLAGS.clone_on_cpu, ps_tasks,
-                  worker_job_name, is_chief, FLAGS.log_dir)
+    trainer.train(create_input_dict_fn, model_fn, train_config,
+                  master, task, FLAGS.num_clones, worker_replicas, FLAGS.clone_on_cpu, ps_tasks, worker_job_name,
+                  is_chief, FLAGS.log_dir)
 
 
 if __name__ == '__main__':

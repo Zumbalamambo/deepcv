@@ -1,4 +1,4 @@
-# Tensorflow Object Detection API: Meta-architectures.
+# DeepCV Object Detection API: Meta-architectures.
 
 package(
     default_visibility = ["//visibility:public"],

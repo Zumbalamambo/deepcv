@@ -55,8 +55,10 @@ def build(model_config, is_training):
     meta_architecture = model_config.WhichOneof('model')
     if meta_architecture == 'ssd':
         return _build_ssd_model(model_config.ssd, is_training)
+
     if meta_architecture == 'faster_rcnn':
         return _build_faster_rcnn_model(model_config.faster_rcnn, is_training)
+
     raise ValueError('Unknown meta architecture: {}'.format(meta_architecture))
 
 
@@ -248,11 +250,13 @@ def _build_faster_rcnn_model(frcnn_config, is_training):
     if isinstance(second_stage_box_predictor, box_predictor.RfcnBoxPredictor):
         return rfcn_meta_arch.RFCNMetaArch(
             second_stage_rfcn_box_predictor=second_stage_box_predictor,
-            **common_kwargs)
+            **common_kwargs
+        )
     else:
         return faster_rcnn_meta_arch.FasterRCNNMetaArch(
             initial_crop_size=initial_crop_size,
             maxpool_kernel_size=maxpool_kernel_size,
             maxpool_stride=maxpool_stride,
             second_stage_mask_rcnn_box_predictor=second_stage_box_predictor,
-            **common_kwargs)
+            **common_kwargs
+        )

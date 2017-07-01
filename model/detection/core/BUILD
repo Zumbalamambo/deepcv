@@ -1,4 +1,4 @@
-# Tensorflow Object Detection API: Core.
+# DeepCV Object Detection API: Core.
 
 package(
     default_visibility = ["//visibility:public"],

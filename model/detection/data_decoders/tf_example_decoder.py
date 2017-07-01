@@ -40,24 +40,16 @@ class TfExampleDecoder(data_decoder.DataDecoder):
         self.items_to_handlers = {
             fields.InputDataFields.image: slim_example_decoder.Image(
                 image_key='image/encoded', format_key='image/format', channels=3),
-            fields.InputDataFields.source_id: (
-                slim_example_decoder.Tensor('image/source_id')),
-            fields.InputDataFields.key: (
-                slim_example_decoder.Tensor('image/key/sha256')),
-            fields.InputDataFields.filename: (
-                slim_example_decoder.Tensor('image/filename')),
+            fields.InputDataFields.source_id: (slim_example_decoder.Tensor('image/source_id')),
+            fields.InputDataFields.key: (slim_example_decoder.Tensor('image/key/sha256')),
+            fields.InputDataFields.filename: (slim_example_decoder.Tensor('image/filename')),
             # Object boxes and classes.
             fields.InputDataFields.groundtruth_boxes: (
-                slim_example_decoder.BoundingBox(
-                    ['ymin', 'xmin', 'ymax', 'xmax'], 'image/object/bbox/')),
-            fields.InputDataFields.groundtruth_classes: (
-                slim_example_decoder.Tensor('image/object/class/label')),
-            fields.InputDataFields.groundtruth_area: slim_example_decoder.Tensor(
-                'image/object/area'),
-            fields.InputDataFields.groundtruth_is_crowd: (
-                slim_example_decoder.Tensor('image/object/is_crowd')),
-            fields.InputDataFields.groundtruth_difficult: (
-                slim_example_decoder.Tensor('image/object/difficult')),
+                slim_example_decoder.BoundingBox(['ymin', 'xmin', 'ymax', 'xmax'], 'image/object/bbox/')),
+            fields.InputDataFields.groundtruth_classes: (slim_example_decoder.Tensor('image/object/class/label')),
+            fields.InputDataFields.groundtruth_area: slim_example_decoder.Tensor('image/object/area'),
+            fields.InputDataFields.groundtruth_is_crowd: (slim_example_decoder.Tensor('image/object/is_crowd')),
+            fields.InputDataFields.groundtruth_difficult: (slim_example_decoder.Tensor('image/object/difficult')),
             # Instance masks and classes.
             fields.InputDataFields.groundtruth_instance_masks: (
                 slim_example_decoder.ItemHandlerCallback(
@@ -100,14 +92,14 @@ class TfExampleDecoder(data_decoder.DataDecoder):
         """
 
         serialized_example = tf.reshape(tf_example_string_tensor, shape=[])
-        decoder = slim_example_decoder.TFExampleDecoder(self.keys_to_features,
-                                                        self.items_to_handlers)
+        decoder = slim_example_decoder.TFExampleDecoder(self.keys_to_features, self.items_to_handlers)
         keys = decoder.list_items()
         tensors = decoder.decode(serialized_example, items=keys)
         tensor_dict = dict(zip(keys, tensors))
         is_crowd = fields.InputDataFields.groundtruth_is_crowd
         tensor_dict[is_crowd] = tf.cast(tensor_dict[is_crowd], dtype=tf.bool)
         tensor_dict[fields.InputDataFields.image].set_shape([None, None, 3])
+
         return tensor_dict
 
     def _reshape_instance_masks(self, keys_to_tensors):

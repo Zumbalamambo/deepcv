@@ -9,11 +9,13 @@ import functools
 import tensorflow as tf
 
 import model.deployment.model_deploy as model_deploy
-import model.detection.builders.optimizer_builder as optimizer_builder
-import model.detection.builders.preprocessor_builder as preprocessor_builder
+
 import model.detection.core.batcher as batcher
 import model.detection.core.preprocessor as preprocessor
 import model.detection.core.standard_fields as fields
+import model.detection.builders.optimizer_builder as optimizer_builder
+import model.detection.builders.preprocessor_builder as preprocessor_builder
+
 import utils.detection.ops as util_ops
 import utils.detection.variables_helper as variables_helper
 
@@ -30,16 +32,14 @@ def _create_input_queue(batch_size_per_clone, create_tensor_dict_fn, batch_queue
       create_tensor_dict_fn: function to create tensor dictionary.
       batch_queue_capacity: maximum number of elements to store within a queue.
       num_batch_queue_threads: number of threads to use for batching.
-      prefetch_queue_capacity: maximum capacity of the queue used to prefetch
-                               assembled batches.
+      prefetch_queue_capacity: maximum capacity of the queue used to prefetch assembled batches.
       data_augmentation_options: a list of tuples, where each tuple contains a
         data augmentation function and a dictionary containing arguments and their
         values (see preprocessor.py).
 
     Returns:
-      input queue: a batcher.BatchQueue object holding enqueued tensor_dicts
-        (which hold images, boxes and targets).  To get a batch of tensor_dicts,
-        call input_queue.Dequeue().
+      input queue: a batcher.BatchQueue object holding enqueued tensor_dicts (which hold images, boxes and targets).
+      To get a batch of tensor_dicts, call input_queue.Dequeue().
     """
     tensor_dict = create_tensor_dict_fn()
 
@@ -56,7 +56,8 @@ def _create_input_queue(batch_size_per_clone, create_tensor_dict_fn, batch_queue
                                      batch_size=batch_size_per_clone,
                                      batch_queue_capacity=batch_queue_capacity,
                                      num_batch_queue_threads=num_batch_queue_threads,
-                                     prefetch_queue_capacity=prefetch_queue_capacity)
+                                     prefetch_queue_capacity=prefetch_queue_capacity,
+                                     )
 
     return input_queue
 
@@ -83,12 +84,11 @@ def _get_inputs(input_queue, num_classes):
     def extract_images_and_targets(read_data):
         image = read_data[fields.InputDataFields.image]
         location_gt = read_data[fields.InputDataFields.groundtruth_boxes]
-        classes_gt = tf.cast(read_data[fields.InputDataFields.groundtruth_classes],
-                             tf.int32)
+        classes_gt = tf.cast(read_data[fields.InputDataFields.groundtruth_classes], tf.int32)
         classes_gt -= label_id_offset
-        classes_gt = util_ops.padded_one_hot_encoding(indices=classes_gt,
-                                                      depth=num_classes, left_pad=0)
+        classes_gt = util_ops.padded_one_hot_encoding(indices=classes_gt, depth=num_classes, left_pad=0)
         masks_gt = read_data.get(fields.InputDataFields.groundtruth_instance_masks)
+
         return image, location_gt, classes_gt, masks_gt
 
     return zip(*map(extract_images_and_targets, read_data_list))

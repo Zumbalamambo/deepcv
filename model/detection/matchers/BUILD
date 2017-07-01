@@ -1,4 +1,4 @@
-# Tensorflow Object Detection API: Matcher implementations.
+# DeepCV Object Detection API: Matcher implementations.
 
 package(
     default_visibility = ["//visibility:public"],

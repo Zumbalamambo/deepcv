@@ -1,4 +1,4 @@
-# Tensorflow Object Detection API: data decoders.
+# DeepCV Object Detection API: data decoders.
 
 package(
     default_visibility = ["//visibility:public"],

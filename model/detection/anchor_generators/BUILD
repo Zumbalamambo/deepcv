@@ -1,4 +1,4 @@
-# Tensorflow Object Detection API: Anchor Generator implementations.
+# DeepCV Object Detection API: Anchor Generator implementations.
 
 package(
     default_visibility = ["//visibility:public"],
