@@ -24,7 +24,7 @@ slim = tf.contrib.slim
 
 
 def _create_input_queue(batch_size_per_clone, create_tensor_dict_fn, batch_queue_capacity, num_batch_queue_threads,
-                        prefetch_queue_capacity, data_augmentation_options):
+                        prefetch_queue_capacity, data_augmentation_options=None):
     """Sets up reader, prefetcher and returns input queue.
 
     Args:
@@ -119,7 +119,7 @@ def _create_losses(input_queue, create_model_fn):
 
 
 def train(create_tensor_dict_fn, create_model_fn, train_config, master, task, num_clones, worker_replicas,
-                      clone_on_cpu, ps_tasks, worker_job_name, is_chief, train_dir):
+          clone_on_cpu, ps_tasks, worker_job_name, is_chief, train_dir):
     """Training function for detection models.
 
     Args:
@@ -151,12 +151,19 @@ def train(create_tensor_dict_fn, create_model_fn, train_config, master, task, nu
             global_step = slim.create_global_step()
 
         with tf.device(deploy_config.inputs_device()):
+            # print(train_config.batch_size)
+            # print(num_clones)
+            # print(train_config.batch_queue_capacity)
+            # print(train_config.num_batch_queue_threads)
+            # print(train_config.prefetch_queue_capacity)
+
             input_queue = _create_input_queue(train_config.batch_size // num_clones,
                                               create_tensor_dict_fn,
                                               train_config.batch_queue_capacity,
                                               train_config.num_batch_queue_threads,
                                               train_config.prefetch_queue_capacity,
-                                              data_augmentation_options)
+                                              data_augmentation_options,
+                                              )
 
         # Gather initial summaries.
         summaries = set(tf.get_collection(tf.GraphKeys.SUMMARIES))

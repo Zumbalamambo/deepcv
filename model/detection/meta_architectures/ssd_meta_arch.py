@@ -22,11 +22,7 @@ slim = tf.contrib.slim
 class SSDFeatureExtractor(object):
     """SSD Feature Extractor definition."""
 
-    def __init__(self,
-                 depth_multiplier,
-                 min_depth,
-                 conv_hyperparams,
-                 reuse_weights=None):
+    def __init__(self, depth_multiplier, min_depth, conv_hyperparams, reuse_weights=None):
         self._depth_multiplier = depth_multiplier
         self._min_depth = min_depth
         self._conv_hyperparams = conv_hyperparams

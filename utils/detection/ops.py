@@ -4,10 +4,10 @@ import six
 
 import tensorflow as tf
 
-from object_detection.core import box_list
-from object_detection.core import box_list_ops
-from object_detection.core import standard_fields as fields
-from object_detection.utils import static_shape
+import model.detection.core.box_list as box_list
+import model.detection.core.box_list_ops as box_list_ops
+import model.detection.core.standard_fields as fields
+import utils.detection.static_shape as static_shape
 
 
 def expanded_shape(orig_shape, start_dim, num_dims):

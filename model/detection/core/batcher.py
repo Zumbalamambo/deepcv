@@ -59,17 +59,20 @@ class BatchQueue(object):
           prefetch_queue_capacity: max capacity of the queue used to prefetch assembled batches.
         """
         # Remember static shapes to set shapes of batched tensors.
-        static_shapes = collections.OrderedDict({key: tensor.get_shape() for key, tensor in tensor_dict.items()})
-
+        static_shapes = collections.OrderedDict(
+            {key: tensor.get_shape() for key, tensor in tensor_dict.items()}
+        )
+        print(static_shapes)
         # Remember runtime shapes to unpad tensors after batching.
         runtime_shapes = collections.OrderedDict(
             {(key, 'runtime_shapes'): tf.shape(tensor) for key, tensor in tensor_dict.items()}
         )
+        print(runtime_shapes)
 
         all_tensors = tensor_dict
         all_tensors.update(runtime_shapes)
 
-        print(all_tensors)
+        # print(all_tensors)
 
         batched_tensors = tf.train.batch(all_tensors,
                                          capacity=batch_queue_capacity,

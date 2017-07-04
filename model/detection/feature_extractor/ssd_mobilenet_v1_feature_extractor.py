@@ -25,8 +25,7 @@ class SSDMobileNetV1FeatureExtractor(ssd_meta_arch.SSDFeatureExtractor):
       conv_hyperparams: tf slim arg_scope for conv2d and separable_conv2d ops.
       reuse_weights: Whether to reuse variables. Default is None.
     """
-    super(SSDMobileNetV1FeatureExtractor, self).__init__(
-        depth_multiplier, min_depth, conv_hyperparams, reuse_weights)
+    super(SSDMobileNetV1FeatureExtractor, self).__init__(depth_multiplier, min_depth, conv_hyperparams, reuse_weights)
 
   def preprocess(self, resized_inputs):
     """SSD preprocessing.

@@ -15,7 +15,7 @@ py_library(
     ],
     deps = [
         "//tensorflow",
-        "//model/detection/utils:ops",
+        "//utils/detection:ops",
     ],
 )
 

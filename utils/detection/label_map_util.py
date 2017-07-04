@@ -4,7 +4,7 @@ import logging
 
 import tensorflow as tf
 from google.protobuf import text_format
-from object_detection.protos import string_int_label_map_pb2
+import model.detection.protos.string_int_label_map_pb2 as string_int_label_map_pb2
 
 
 def create_category_index(categories):

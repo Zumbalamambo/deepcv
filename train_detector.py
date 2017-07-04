@@ -9,7 +9,7 @@ can be specified by --pipeline_config_path.
 Example usage:
     ./train \
         --logtostderr \
-        --train_dir=path/to/train_dir \
+        --log_dir=path/to/train_dir \
         --pipeline_config_path=pipeline_config.pbtxt
 
 2) Three configuration files can be provided: a model_pb2.DetectionModel
@@ -20,7 +20,7 @@ a train_pb2.TrainConfig file to configure training parameters.
 Example usage:
     ./train \
         --logtostderr \
-        --train_dir=path/to/train_dir \
+        --log_dir=path/to/train_dir \
         --model_config_path=model_config.pbtxt \
         --train_config_path=train_config.pbtxt \
         --input_config_path=train_input_config.pbtxt
@@ -157,7 +157,8 @@ def main(_):
 
     if worker_replicas >= 1 and ps_tasks > 0:
         # Set up distributed training.
-        server = tf.train.Server(tf.train.ClusterSpec(cluster), protocol='grpc',
+        server = tf.train.Server(tf.train.ClusterSpec(cluster),
+                                 protocol='grpc',
                                  job_name=task_info.type,
                                  task_index=task_info.index)
         if task_info.type == 'ps':
@@ -170,8 +171,10 @@ def main(_):
         master = server.target
 
     trainer.train(create_input_dict_fn, model_fn, train_config,
-                  master, task, FLAGS.num_clones, worker_replicas, FLAGS.clone_on_cpu, ps_tasks, worker_job_name,
-                  is_chief, FLAGS.log_dir)
+                  master, task, FLAGS.num_clones, worker_replicas,
+                  FLAGS.clone_on_cpu, ps_tasks, worker_job_name,
+                  is_chief, FLAGS.log_dir
+                  )
 
 
 if __name__ == '__main__':

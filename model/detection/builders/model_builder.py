@@ -1,13 +1,5 @@
 """A function to build a DetectionModel from configuration."""
-import model.detection.meta_architectures.faster_rcnn_meta_arch as faster_rcnn_meta_arch
-import model.detection.meta_architectures.rfcn_meta_arch as rfcn_meta_arch
-import model.detection.meta_architectures.ssd_meta_arch as ssd_meta_arch
-
-import model.detection.feature_extractor.faster_rcnn_inception_resnet_v2_feature_extractor as frcnn_inc_res
-import model.detection.feature_extractor.faster_rcnn_resnet_v1_feature_extractor as frcnn_resnet_v1
-import model.detection.feature_extractor.ssd_inception_v2_feature_extractor as SSDInceptionV2FeatureExtractor
-import model.detection.feature_extractor.ssd_mobilenet_v1_feature_extractor as SSDMobileNetV1FeatureExtractor
-
+import model.detection.core.box_predictor as box_predictor
 import model.detection.protos.model_pb2 as model_pb2
 import model.detection.builders.anchor_generator_builder as anchor_generator_builder
 import model.detection.builders.box_coder_builder as box_coder_builder
@@ -18,12 +10,22 @@ import model.detection.builders.losses_builder as losses_builder
 import model.detection.builders.matcher_builder as matcher_builder
 import model.detection.builders.post_processing_builder as post_processing_builder
 import model.detection.builders.region_similarity_calculator_builder as sim_calc
-import model.detection.core.box_predictor as box_predictor
+
+import model.detection.meta_architectures.faster_rcnn_meta_arch as faster_rcnn_meta_arch
+import model.detection.meta_architectures.rfcn_meta_arch as rfcn_meta_arch
+import model.detection.meta_architectures.ssd_meta_arch as ssd_meta_arch
+
+import model.detection.feature_extractor.faster_rcnn_inception_resnet_v2_feature_extractor as frcnn_inc_res
+import model.detection.feature_extractor.faster_rcnn_resnet_v1_feature_extractor as frcnn_resnet_v1
+import model.detection.feature_extractor.ssd_mobilenet_v1_feature_extractor as ssd_mobilenet_v1_feature_extractor
+import model.detection.feature_extractor.ssd_inception_v2_feature_extractor as ssd_inception_v2_feature_extractor
+
+
 
 # A map of names to SSD feature extractors.
 SSD_FEATURE_EXTRACTOR_CLASS_MAP = {
-    'ssd_mobilenet_v1': SSDMobileNetV1FeatureExtractor,
-    'ssd_inception_v2': SSDInceptionV2FeatureExtractor,
+    'ssd_mobilenet_v1': ssd_mobilenet_v1_feature_extractor.SSDMobileNetV1FeatureExtractor,
+    'ssd_inception_v2': ssd_inception_v2_feature_extractor.SSDInceptionV2FeatureExtractor,
 }
 
 # A map of names to Faster R-CNN feature extractors.
@@ -79,13 +81,14 @@ def _build_ssd_feature_extractor(feature_extractor_config, is_training, reuse_we
     feature_type = feature_extractor_config.type
     depth_multiplier = feature_extractor_config.depth_multiplier
     min_depth = feature_extractor_config.min_depth
-    conv_hyperparams = hyperparams_builder.build(
-        feature_extractor_config.conv_hyperparams, is_training)
+    conv_hyperparams = hyperparams_builder.build(feature_extractor_config.conv_hyperparams, is_training)
+
 
     if feature_type not in SSD_FEATURE_EXTRACTOR_CLASS_MAP:
         raise ValueError('Unknown ssd feature_extractor: {}'.format(feature_type))
 
     feature_extractor_class = SSD_FEATURE_EXTRACTOR_CLASS_MAP[feature_type]
+
     return feature_extractor_class(depth_multiplier, min_depth, conv_hyperparams, reuse_weights)
 
 
