@@ -8,10 +8,14 @@ Example box operations that are supported:
 Whenever box_list_ops functions output a BoxList, the fields of the incoming
 BoxList are retained unless documented otherwise.
 """
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+
 import tensorflow as tf
 
 import model.detection.core.box_list as box_list
-import model.detection.utils.shape_util as shape_util
+import utils.detection.shape_util as shape_util
 
 
 class SortOrder(object):

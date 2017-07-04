@@ -16,6 +16,10 @@ Note that TargetAssigners only operate on detections from a single
 image at a time, so any logic for applying a TargetAssigner to multiple
 images must be handled externally.
 """
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+
 import tensorflow as tf
 
 import model.detection.box_coders.faster_rcnn_box_coder as faster_rcnn_box_coder

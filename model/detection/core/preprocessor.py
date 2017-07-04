@@ -27,6 +27,9 @@ preprocess function we squeeze the image to become a rank 3 tensor and then
 we pass it to the functions. At the end of the preprocess we expand the image
 back to rank 4.
 """
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
 
 import sys
 

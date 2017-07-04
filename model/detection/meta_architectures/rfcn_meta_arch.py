@@ -27,8 +27,8 @@ apply here.
 import tensorflow as tf
 
 import model.detection.core.box_predictor as box_predictor
-import model.detection.utils.ops as ops
 import model.detection.meta_architectures.faster_rcnn_meta_arch as faster_rcnn_meta_arch
+import utils.detection.ops as ops
 
 
 class RFCNMetaArch(faster_rcnn_meta_arch.FasterRCNNMetaArch):

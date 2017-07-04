@@ -2,7 +2,7 @@
 
 import tensorflow as tf
 
-import model.detection.utils.learning_schedules as learning_schedules
+import utils.detection.learning_schedules as learning_schedules
 
 slim = tf.contrib.slim
 

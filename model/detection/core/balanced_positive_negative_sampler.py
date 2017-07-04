@@ -10,6 +10,9 @@ The main function to call is Subsample(self, indicator, labels). For convenience
 one can also call SubsampleWeights(self, weights, labels) which is defined in
 the minibatch_sampler base class.
 """
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
 
 import tensorflow as tf
 

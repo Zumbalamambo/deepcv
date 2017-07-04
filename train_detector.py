@@ -40,6 +40,7 @@ import model.detection.protos.model_pb2 as model_pb2
 import model.detection.protos.pipeline_pb2 as pipeline_pb2
 import model.detection.protos.train_pb2 as train_pb2
 import model.detection.trainer as trainer
+# import model.detection.core.standard_fields as fields
 
 tf.logging.set_verbosity(tf.logging.INFO)
 

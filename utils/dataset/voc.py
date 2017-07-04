@@ -12,8 +12,8 @@ import tqdm
 import utils.detection.label_map_util as label_map_util
 from lxml import etree
 
-import model.detection.utils.dataset_util as dataset_util
 import utils.tfimage as tfimage
+import utils.detection.dataset_util as dataset_util
 
 
 def load_voc_annotation(path, name_index):

@@ -6,12 +6,15 @@ as well as
 "Speed/accuracy trade-offs for modern convolutional object detectors" by
 Huang et al. (https://arxiv.org/abs/1611.10012)
 """
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
 
 import tensorflow as tf
 
 import model.classification.inception_resnet_v2 as inception_resnet_v2
-import model.detection.utils.variables_helper as variables_helper
 import model.detection.meta_architectures.faster_rcnn_meta_arch as faster_rcnn_meta_arch
+import utils.detection.variables_helper as variables_helper
 
 slim = tf.contrib.slim
 

@@ -1,4 +1,8 @@
 """Provides functions to batch a dictionary of input tensors."""
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+
 import collections
 
 import tensorflow as tf
@@ -62,12 +66,12 @@ class BatchQueue(object):
         static_shapes = collections.OrderedDict(
             {key: tensor.get_shape() for key, tensor in tensor_dict.items()}
         )
-        print(static_shapes)
+        # print(static_shapes)
         # Remember runtime shapes to unpad tensors after batching.
         runtime_shapes = collections.OrderedDict(
             {(key, 'runtime_shapes'): tf.shape(tensor) for key, tensor in tensor_dict.items()}
         )
-        print(runtime_shapes)
+        # print(runtime_shapes)
 
         all_tensors = tensor_dict
         all_tensors.update(runtime_shapes)

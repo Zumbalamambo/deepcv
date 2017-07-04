@@ -9,11 +9,11 @@ import pandas as pandas
 import tensorflow as tf
 import tqdm
 
-import utils.dataset.cifar10 as cifar10
-import utils.dataset.imagenet as imagenet
-import utils.dataset.voc as voc
-import utils.tfimage as tfimage
-import utils.tfsys as tfsys
+import detection.dataset.cifar10 as cifar10
+import detection.dataset.imagenet as imagenet
+import detection.dataset.voc as voc
+import detection.tfimage as tfimage
+import detection.tfsys as tfsys
 
 datasets_map = {'cifar10': cifar10,
                 'imagenet': imagenet,

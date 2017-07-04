@@ -7,9 +7,7 @@ import numpy as np
 import tensorflow as tf
 from PIL import Image
 
-import utils.tfdetection as tfdet
-import utils.tfimage as tfimage
-import utils.tfvisualize as tfvisualize
+from utils import detection as tfdet, detection as tfimage, detection as tfvisualize
 
 
 def detect_image(sess, model, names, image_placeholder, image_path, args):

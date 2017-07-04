@@ -12,7 +12,7 @@ import collections
 
 import tensorflow as tf
 
-import model.detection.utils.ops as ops
+import utils.detection.ops as ops
 
 slim = tf.contrib.slim
 

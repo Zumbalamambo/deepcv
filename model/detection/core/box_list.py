@@ -18,6 +18,9 @@ Some other notes:
   and correspondingly, y,x (or ymin, xmin, ymax, xmax) ordering
   * Tensors are always provided as (flat) [N, 4] tensors.
 """
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
 
 import tensorflow as tf
 

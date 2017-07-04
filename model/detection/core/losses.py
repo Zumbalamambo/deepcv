@@ -10,6 +10,10 @@ Classification losses:
  * WeightedSoftmaxClassificationLoss
  * BootstrappedSigmoidClassificationLoss
 """
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+
 from abc import ABCMeta
 from abc import abstractmethod
 
@@ -17,7 +21,7 @@ import tensorflow as tf
 
 import model.detection.core.box_list as box_list
 import model.detection.core.box_list_ops as box_list_ops
-import model.detection.utils.ops as ops
+import utils.detection.ops as ops
 
 slim = tf.contrib.slim
 

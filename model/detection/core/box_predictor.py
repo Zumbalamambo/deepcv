@@ -11,13 +11,17 @@ in our detection models.
 These modules are separated from the main model since the same
 few box predictor architectures are shared across many models.
 """
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
 
 from abc import abstractmethod
 
 import tensorflow as tf
 
-import model.detection.utils.ops as ops
-import model.detection.utils.static_shape as static_shape
+import utils.detection.ops as ops
+import utils.detection.static_shape as static_shape
+
 
 slim = tf.contrib.slim
 

@@ -64,7 +64,7 @@ import model.detection.core.losses as losses
 import model.detection.core.model as model
 import model.detection.core.standard_fields as fields
 import model.detection.core.target_assigner as target_assigner
-import model.detection.utils.ops as ops
+import utils.detection.ops as ops
 
 slim = tf.contrib.slim
 

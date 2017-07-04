@@ -12,7 +12,7 @@ import model.detection.core.box_list_ops as box_list_ops
 import model.detection.core.prefetcher as prefetcher
 import model.detection.core.standard_fields as fields
 import model.detection.eval_util as eval_util
-import model.detection.utils.ops as ops
+import utils.detection.ops as ops
 
 slim = tf.contrib.slim
 

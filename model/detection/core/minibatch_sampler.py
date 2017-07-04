@@ -12,13 +12,16 @@ sampled..
 Subclasses should implement the Subsample function and can make use of the
 @staticmethod SubsampleIndicator.
 """
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
 
 from abc import ABCMeta
 from abc import abstractmethod
 
 import tensorflow as tf
 
-import model.detection.utils.ops as ops
+import utils.detection.ops as ops
 
 
 class MinibatchSampler(object):

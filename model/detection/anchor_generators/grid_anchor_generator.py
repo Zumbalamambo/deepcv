@@ -9,7 +9,7 @@ import tensorflow as tf
 
 import model.detection.core.anchor_generator as anchor_generator
 import model.detection.core.box_list as box_list
-import model.detection.utils.ops as ops
+import utils.detection.ops as ops
 
 
 class GridAnchorGenerator(anchor_generator.AnchorGenerator):
