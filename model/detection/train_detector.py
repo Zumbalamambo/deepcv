@@ -1,13 +1,15 @@
-import os
 import configparser
 import importlib
 import multiprocessing
+import os
+
 import tensorflow as tf
 import tensorflow.contrib.slim as slim
+
 import utils.tfdata as tfdata
+import utils.tfdetection as tfdet
 import utils.tfsys as tfsys
 import utils.tftrain as tftrain
-import utils.tfdetection as tfdet
 
 
 def run(config, args):

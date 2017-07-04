@@ -7,18 +7,15 @@ DetectionModel.
 import functools
 
 import tensorflow as tf
+import utils.detection.ops as util_ops
 
 import model.deployment.model_deploy as model_deploy
-
+import model.detection.builders.optimizer_builder as optimizer_builder
+import model.detection.builders.preprocessor_builder as preprocessor_builder
 import model.detection.core.batcher as batcher
 import model.detection.core.preprocessor as preprocessor
 import model.detection.core.standard_fields as fields
-import model.detection.builders.optimizer_builder as optimizer_builder
-import model.detection.builders.preprocessor_builder as preprocessor_builder
-
-import utils.detection.ops as util_ops
-import utils.detection.variables_helper as variables_helper
-
+import model.detection.utils.variables_helper as variables_helper
 
 slim = tf.contrib.slim
 

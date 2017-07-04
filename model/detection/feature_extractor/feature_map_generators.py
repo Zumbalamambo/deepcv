@@ -9,8 +9,10 @@ Feature map generators build on the base feature extractors and produce a list
 of final feature maps.
 """
 import collections
+
 import tensorflow as tf
-import utils.detection.ops as ops
+
+import model.detection.utils.ops as ops
 
 slim = tf.contrib.slim
 

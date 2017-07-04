@@ -1,10 +1,12 @@
 import json
-from PIL import Image
+
 import numpy as np
 import tensorflow as tf
-from matplotlib import pyplot as plt
 import utils.detection.label_map_util as label_map_util
-import utils.detection.visualization_utils as vis_util
+from PIL import Image
+from matplotlib import pyplot as plt
+
+import model.detection.utils.visualization_utils as vis_util
 
 slim = tf.contrib.slim
 

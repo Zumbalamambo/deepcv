@@ -4,6 +4,7 @@ import logging
 
 import tensorflow as tf
 from google.protobuf import text_format
+
 import model.detection.protos.string_int_label_map_pb2 as string_int_label_map_pb2
 
 

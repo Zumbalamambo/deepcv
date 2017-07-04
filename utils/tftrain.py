@@ -1,7 +1,9 @@
 import configparser
 import inspect
+
 import numpy as np
 import tensorflow as tf
+
 import utils.tfnet as tfnet
 
 

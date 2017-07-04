@@ -52,6 +52,7 @@ TODO: Support TPU implementations and sigmoid loss.
 """
 from abc import abstractmethod
 from functools import partial
+
 import tensorflow as tf
 
 import model.detection.anchor_generators.grid_anchor_generator as grid_anchor_generator
@@ -61,11 +62,9 @@ import model.detection.core.box_list_ops as box_list_ops
 import model.detection.core.box_predictor as box_predictor
 import model.detection.core.losses as losses
 import model.detection.core.model as model
-import model.detection.core.post_processing as post_precessing
 import model.detection.core.standard_fields as fields
 import model.detection.core.target_assigner as target_assigner
-import utils.detection.ops as ops
-import utils.detection.variables_helper as vairables_helper
+import model.detection.utils.ops as ops
 
 slim = tf.contrib.slim
 

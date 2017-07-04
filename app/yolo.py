@@ -1,15 +1,17 @@
+import importlib
 import os
 import sys
-import importlib
-import numpy as np
+
 import matplotlib.pyplot as plt
+import numpy as np
 import tensorflow as tf
 import tensorflow.contrib.slim as slim
-import utils.tfdata as tfdata
-import utils.tfsys as tfsys
-import utils.tfdetection as tfdet
-import model.detection.yolo_detector as yolo_det
+
 import model.detection.train_detector as train_detector
+import model.detection.yolo_detector as yolo_det
+import utils.tfdata as tfdata
+import utils.tfdetection as tfdet
+import utils.tfsys as tfsys
 
 sys.path.append('..')
 

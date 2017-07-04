@@ -1,7 +1,8 @@
 import itertools
-import numpy as np
-import matplotlib.pyplot as plt
+
 import matplotlib.patches as patches
+import matplotlib.pyplot as plt
+import numpy as np
 
 
 def draw_labels(ax, names, width, height, cell_width, cell_height, mask, prob, coords, xy_min, xy_max, areas,

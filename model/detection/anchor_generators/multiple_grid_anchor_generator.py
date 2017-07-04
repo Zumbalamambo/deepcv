@@ -9,7 +9,6 @@ Cheng-Yang Fu, Alexander C. Berg
 """
 
 import numpy as np
-
 import tensorflow as tf
 
 import model.detection.anchor_generators.grid_anchor_generator as grid_anchor_generator

@@ -1,8 +1,8 @@
-import os
 import numpy as np
 import tensorflow as tf
-import utils.tfsys as tfsys
+
 import model.detection.yolo.inference
+import utils.tfsys as tfsys
 
 
 def calc_cell_xy(cell_height, cell_width, dtype=np.float32):

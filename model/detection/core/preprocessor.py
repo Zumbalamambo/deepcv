@@ -29,8 +29,8 @@ back to rank 4.
 """
 
 import sys
-import tensorflow as tf
 
+import tensorflow as tf
 from tensorflow.python.ops import control_flow_ops
 
 import model.detection.core.box_list as box_list

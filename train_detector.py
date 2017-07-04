@@ -33,14 +33,12 @@ import os
 import tensorflow as tf
 from google.protobuf import text_format
 
+import model.detection.builders.input_reader_builder as input_reader_builder
+import model.detection.builders.model_builder as model_builder
 import model.detection.protos.input_reader_pb2 as input_reader_pb2
 import model.detection.protos.model_pb2 as model_pb2
 import model.detection.protos.pipeline_pb2 as pipeline_pb2
 import model.detection.protos.train_pb2 as train_pb2
-
-import model.detection.builders.input_reader_builder as input_reader_builder
-import model.detection.builders.model_builder as model_builder
-
 import model.detection.trainer as trainer
 
 tf.logging.set_verbosity(tf.logging.INFO)

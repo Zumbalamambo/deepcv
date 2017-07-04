@@ -1,9 +1,11 @@
 import functools
+
 import tensorflow as tf
-import model.classification.vgg as vgg
-import model.classification.resnet_v1 as resnet_v1
+
 import model.classification.inception as inception
 import model.classification.mobilenet_v1 as mobilenet_v1
+import model.classification.resnet_v1 as resnet_v1
+import model.classification.vgg as vgg
 
 slim = tf.contrib.slim
 

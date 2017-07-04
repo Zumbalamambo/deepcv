@@ -203,14 +203,13 @@ class DetectionModel(object):
             missing keypoints should be encoded as NaN.
         """
         self._groundtruth_lists[fields.BoxListFields.boxes] = groundtruth_boxes_list
-        self._groundtruth_lists[
-            fields.BoxListFields.classes] = groundtruth_classes_list
+        self._groundtruth_lists[fields.BoxListFields.classes] = groundtruth_classes_list
+
         if groundtruth_masks_list:
-            self._groundtruth_lists[
-                fields.BoxListFields.masks] = groundtruth_masks_list
+            self._groundtruth_lists[fields.BoxListFields.masks] = groundtruth_masks_list
+
         if groundtruth_keypoints_list:
-            self._groundtruth_lists[
-                fields.BoxListFields.keypoints] = groundtruth_keypoints_list
+            self._groundtruth_lists[fields.BoxListFields.keypoints] = groundtruth_keypoints_list
 
     @abstractmethod
     def restore_fn(self, checkpoint_path, from_detection_checkpoint=True):

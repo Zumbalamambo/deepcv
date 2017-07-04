@@ -4,14 +4,15 @@ This file provides a generic evaluation method that can be used to evaluate a
 DetectionModel.
 """
 import logging
+
 import tensorflow as tf
 
-import model.detection.eval_util as eval_util
 import model.detection.core.box_list as box_list
 import model.detection.core.box_list_ops as box_list_ops
 import model.detection.core.prefetcher as prefetcher
 import model.detection.core.standard_fields as fields
-import utils.detection.ops as ops
+import model.detection.eval_util as eval_util
+import model.detection.utils.ops as ops
 
 slim = tf.contrib.slim
 

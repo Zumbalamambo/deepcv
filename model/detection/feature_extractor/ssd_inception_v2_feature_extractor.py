@@ -1,9 +1,9 @@
 """SSDFeatureExtractor for InceptionV2 features."""
 import tensorflow as tf
 
-import model.detection.meta_architectures.ssd_meta_arch as ssd_meta_arch
-import model.detection.feature_extractor.feature_map_generators as feature_map_generators
 import model.classification.inception_v2 as inception_v2
+import model.detection.feature_extractor.feature_map_generators as feature_map_generators
+import model.detection.meta_architectures.ssd_meta_arch as ssd_meta_arch
 
 slim = tf.contrib.slim
 

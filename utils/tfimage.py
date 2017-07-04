@@ -1,7 +1,8 @@
 import inspect
+
 import numpy as np
-from PIL import Image
 import tensorflow as tf
+from PIL import Image
 
 
 def verify_imageshape(imagepath, imageshape):

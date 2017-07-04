@@ -1,13 +1,13 @@
 """A module for helper tensorflow ops."""
 import math
-import six
 
+import six
 import tensorflow as tf
 
 import model.detection.core.box_list as box_list
 import model.detection.core.box_list_ops as box_list_ops
 import model.detection.core.standard_fields as fields
-import utils.detection.static_shape as static_shape
+import model.detection.utils.static_shape as static_shape
 
 
 def expanded_shape(orig_shape, start_dim, num_dims):

@@ -1,7 +1,9 @@
 import os
+
 import numpy as np
 import pandas as pd
 import tensorflow as tf
+
 import model.detection.yolo as yolo
 import model.detection.yolo2.inference
 import utils.tfsys as tfsys

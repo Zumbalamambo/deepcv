@@ -1,8 +1,8 @@
 """Bipartite matcher implementation."""
 
 import tensorflow as tf
-
 from tensorflow.contrib.image.python.ops import image_ops
+
 import model.detection.core.matcher as matcher
 
 

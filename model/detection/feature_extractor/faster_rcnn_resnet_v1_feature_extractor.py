@@ -11,9 +11,9 @@ same preprocessing, batch norm scaling, etc.
 """
 import tensorflow as tf
 
-import model.detection.meta_architectures.faster_rcnn_meta_arch as faster_rcnn_meta_arch
 import model.classification.resnet_util as resnet_util
 import model.classification.resnet_v1 as resnet_v1
+import model.detection.meta_architectures.faster_rcnn_meta_arch as faster_rcnn_meta_arch
 
 slim = tf.contrib.slim
 

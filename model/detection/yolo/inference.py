@@ -1,6 +1,8 @@
 import inspect
+
 import tensorflow as tf
 import tensorflow.contrib.slim as slim
+
 import utils.tfnet as tfnet
 
 

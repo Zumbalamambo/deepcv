@@ -3,9 +3,9 @@
 General tensorflow implementation of convolutional Multibox/SSD detection
 models.
 """
+import re
 from abc import abstractmethod
 
-import re
 import tensorflow as tf
 
 import model.detection.core.box_coder as bcoder
@@ -14,7 +14,7 @@ import model.detection.core.box_predictor as bpredictor
 import model.detection.core.model as model
 import model.detection.core.standard_fields as fields
 import model.detection.core.target_assigner as target_assigner
-import utils.detection.variables_helper as variables_helper
+import model.detection.utils.variables_helper as variables_helper
 
 slim = tf.contrib.slim
 

@@ -2,9 +2,9 @@
 
 import tensorflow as tf
 
-import model.detection.meta_architectures.ssd_meta_arch as ssd_meta_arch
-import model.detection.feature_extractor.feature_map_generators as feature_map_generators
 import model.classification.mobilenet_v1 as mobilenet_v1
+import model.detection.feature_extractor.feature_map_generators as feature_map_generators
+import model.detection.meta_architectures.ssd_meta_arch as ssd_meta_arch
 
 slim = tf.contrib.slim
 

@@ -7,7 +7,6 @@ import time
 
 import numpy as np
 import tensorflow as tf
-
 from object_detection.utils import label_map_util
 from object_detection.utils import object_detection_evaluation
 from object_detection.utils import visualization_utils as vis_utils

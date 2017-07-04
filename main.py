@@ -1,11 +1,12 @@
-import time
 import argparse
 import configparser
-import app.yolo as yolo
+import time
+
 import app.classifier as classifier
 import app.detector as detector
-import utils.tfsys as tfsys
+import app.yolo as yolo
 import utils.tfdata as tfdata
+import utils.tfsys as tfsys
 
 
 def main():

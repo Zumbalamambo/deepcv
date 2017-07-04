@@ -1,11 +1,13 @@
-import os
-from PIL import Image
 import json
+import os
+
 import numpy as np
 import tensorflow as tf
+from PIL import Image
+
 import model.classification.classifier_factory as classfier_factory
-import utils.preprocessing.preprocessing_factory as preprocessing_factory
 import utils.dataset.imagenet as imagenet
+import utils.preprocessing.preprocessing_factory as preprocessing_factory
 
 try:
     import urllib2
@@ -157,8 +159,6 @@ def classify_iamge_remote(config, args):
 
 
 def test():
-    import model.classification.vgg as vgg
-    import utils.preprocessing.vgg_preprocessing as vgg_preprocessing
     image_size = vgg.vgg_16.default_image_size
     with tf.device('/gpu:0'):
         url = 'https://upload.wikimedia.org/wikipedia/commons/d/d9/First_Student_IC_school_bus_202076.jpg'

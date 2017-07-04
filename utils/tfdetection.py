@@ -1,5 +1,6 @@
-import numpy as np
 import importlib
+
+import numpy as np
 
 
 def iou(xy_min1, xy_max1, xy_min2, xy_max2):

@@ -1,13 +1,15 @@
 import itertools
-from PIL import Image
+
 import cv2
-import numpy as np
-import matplotlib.pyplot as plt
 import matplotlib.patches as patches
+import matplotlib.pyplot as plt
+import numpy as np
 import tensorflow as tf
-import utils.tfvisualize as tfvisualize
-import utils.tfimage as tfimage
+from PIL import Image
+
 import utils.tfdetection as tfdet
+import utils.tfimage as tfimage
+import utils.tfvisualize as tfvisualize
 
 
 def detect_image(sess, model, names, image_placeholder, image_path, args):

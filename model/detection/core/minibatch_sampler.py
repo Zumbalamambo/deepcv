@@ -18,7 +18,7 @@ from abc import abstractmethod
 
 import tensorflow as tf
 
-import utils.detection.ops as ops
+import model.detection.utils.ops as ops
 
 
 class MinibatchSampler(object):

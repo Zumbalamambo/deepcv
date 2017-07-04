@@ -1,17 +1,19 @@
-import os
-import sys
-import tqdm
-import bs4
 import hashlib
 import io
 import logging
-from lxml import etree
+import os
+import sys
+
 import PIL.Image
+import bs4
 import numpy as np
 import tensorflow as tf
-import utils.tfimage as tfimage
-import utils.detection.dataset_util as dataset_util
+import tqdm
 import utils.detection.label_map_util as label_map_util
+from lxml import etree
+
+import model.detection.utils.dataset_util as dataset_util
+import utils.tfimage as tfimage
 
 
 def load_voc_annotation(path, name_index):

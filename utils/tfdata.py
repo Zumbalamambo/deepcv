@@ -1,18 +1,19 @@
-import os
-import sys
-import tqdm
-import bs4
 import importlib
 import inspect
+import os
+import sys
+
+import bs4
 import numpy as np
 import pandas as pandas
 import tensorflow as tf
-import utils.tfsys as tfsys
-import utils.tfimage as tfimage
+import tqdm
 
 import utils.dataset.cifar10 as cifar10
 import utils.dataset.imagenet as imagenet
 import utils.dataset.voc as voc
+import utils.tfimage as tfimage
+import utils.tfsys as tfsys
 
 datasets_map = {'cifar10': cifar10,
                 'imagenet': imagenet,

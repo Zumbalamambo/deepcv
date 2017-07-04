@@ -17,7 +17,7 @@ import tensorflow as tf
 
 import model.detection.core.box_list as box_list
 import model.detection.core.box_list_ops as box_list_ops
-import utils.detection.ops as ops
+import model.detection.utils.ops as ops
 
 slim = tf.contrib.slim
 

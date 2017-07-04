@@ -1,6 +1,4 @@
 """A function to build a DetectionModel from configuration."""
-import model.detection.core.box_predictor as box_predictor
-import model.detection.protos.model_pb2 as model_pb2
 import model.detection.builders.anchor_generator_builder as anchor_generator_builder
 import model.detection.builders.box_coder_builder as box_coder_builder
 import model.detection.builders.box_predictor_builder as box_predictor_builder
@@ -10,17 +8,15 @@ import model.detection.builders.losses_builder as losses_builder
 import model.detection.builders.matcher_builder as matcher_builder
 import model.detection.builders.post_processing_builder as post_processing_builder
 import model.detection.builders.region_similarity_calculator_builder as sim_calc
-
+import model.detection.core.box_predictor as box_predictor
+import model.detection.feature_extractor.faster_rcnn_inception_resnet_v2_feature_extractor as frcnn_inc_res
+import model.detection.feature_extractor.faster_rcnn_resnet_v1_feature_extractor as frcnn_resnet_v1
+import model.detection.feature_extractor.ssd_inception_v2_feature_extractor as ssd_inception_v2_feature_extractor
+import model.detection.feature_extractor.ssd_mobilenet_v1_feature_extractor as ssd_mobilenet_v1_feature_extractor
 import model.detection.meta_architectures.faster_rcnn_meta_arch as faster_rcnn_meta_arch
 import model.detection.meta_architectures.rfcn_meta_arch as rfcn_meta_arch
 import model.detection.meta_architectures.ssd_meta_arch as ssd_meta_arch
-
-import model.detection.feature_extractor.faster_rcnn_inception_resnet_v2_feature_extractor as frcnn_inc_res
-import model.detection.feature_extractor.faster_rcnn_resnet_v1_feature_extractor as frcnn_resnet_v1
-import model.detection.feature_extractor.ssd_mobilenet_v1_feature_extractor as ssd_mobilenet_v1_feature_extractor
-import model.detection.feature_extractor.ssd_inception_v2_feature_extractor as ssd_inception_v2_feature_extractor
-
-
+import model.detection.protos.model_pb2 as model_pb2
 
 # A map of names to SSD feature extractors.
 SSD_FEATURE_EXTRACTOR_CLASS_MAP = {

@@ -16,8 +16,9 @@ of the image belong to just one class.
 """
 
 import os
-from six.moves import urllib
+
 import tensorflow as tf
+from six.moves import urllib
 
 import utils.dataset.dataset_util as dataset_util
 
