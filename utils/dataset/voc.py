@@ -155,57 +155,40 @@ for yolo model
 '''
 
 
-def cache(config, args):
+def convert_to_tfrecord_for_yolo(config):
+    dataset_name = config.get('dataset', 'name')
+    dataset_dir = config.get('dataset', 'data')
     label_file = config.get('dataset', 'label')
+
     with open(label_file, 'r') as f:
         labels = [line.strip() for line in f]
 
     labels_index = dict([(name, i) for i, name in enumerate(labels)])
-    dataset = [
-        (os.path.basename(os.path.splitext(path)[0]), pandas.read_csv(os.path.expanduser(os.path.expandvars(path)))) \
-        for path in config.get('dataset', 'data').split(':')]
-
-    module = importlib.import_module('utils.tfdata')
+    # dataset = [
+    #     (os.path.basename(os.path.splitext(path)[0]), pandas.read_csv(os.path.expanduser(os.path.expandvars(path)))) \
+    #     for path in config.get('dataset', 'data').split(':')]
+    # # dataset = []
+    # print(dataset)
+    module = importlib.import_module('utils.dataset.'+dataset_name)
     cache_dir = tfsys.get_cachedir(config)
-    data_dir = os.path.join(cache_dir, 'dataset', config.get('dataset', 'name'))
-    os.makedirs(data_dir, exist_ok=True)
 
-    for profile in args.profile:
-        tfrecord_file = os.path.join(data_dir, profile + '.tfrecord')
+    tfrecord_dir = os.path.join(cache_dir, 'dataset', config.get('dataset', 'name'))
+    if not os.path.exists(tfrecord_dir):
+        os.makedirs(tfrecord_dir)
+
+    for profile in ['train', 'val']:
+        tfrecord_file = os.path.join(tfrecord_dir, profile + '.tfrecord')
         tf.logging.info('Write tfrecord file:' + tfrecord_file)
+        func = getattr(module, dataset_name)
         with tf.python_io.TFRecordWriter(tfrecord_file) as writer:
-            for name, data in dataset:
-                func = getattr(module, name)
-                for i, row in data.iterrows():
-                    print(row)
-                    func(writer, labels_index, profile, row, args.verify)
+            # for name, data in dataset:
+            #     for i, row in data.iterrows():
+            #         print('row: '+row)
+            func(writer, labels_index, profile, dataset_dir, False)
 
 
-def load_voc_annotation(path, name_index):
-    with open(path, 'r') as f:
-        anno = bs4.BeautifulSoup(f.read(), 'xml').find('annotation')
-    objects_class = []
-    objects_coord = []
-    for obj in anno.find_all('object', recursive=False):
-        for bndbox, name in zip(obj.find_all('bndbox', recursive=False), obj.find_all('name', recursive=False)):
-            if name.text in name_index:
-                objects_class.append(name_index[name.text])
-                xmin = float(bndbox.find('xmin').text) - 1
-                ymin = float(bndbox.find('ymin').text) - 1
-                xmax = float(bndbox.find('xmax').text) - 1
-                ymax = float(bndbox.find('ymax').text) - 1
-                objects_coord.append((xmin, ymin, xmax, ymax))
-            else:
-                sys.stderr.write(name.text + ' not in names')
-    size = anno.find('size')
-    return anno.find('filename').text, \
-           (int(size.find('height').text), int(size.find('width').text), int(size.find('depth').text)), \
-           objects_class, \
-           objects_coord
-
-
-def voc(writer, name_index, profile, row, verify=True):
-    root = os.path.expanduser(os.path.expandvars(row['root']))
+def voc(writer, name_index, profile, dataset_dir, verify=True):
+    root = dataset_dir#os.path.expanduser(os.path.expandvars(row['root']))
     path = os.path.join(root, 'ImageSets', 'Main', profile) + '.txt'
     if not os.path.exists(path):
         tf.logging.warn(path + ' not exists')
@@ -244,6 +227,30 @@ def voc(writer, name_index, profile, row, verify=True):
     if cnt_noobj > 0:
         tf.logging.warn('%d of %d images have no object' % (cnt_noobj, len(filenames)))
     return True
+
+
+
+def load_voc_annotation(path, name_index):
+    with open(path, 'r') as f:
+        anno = bs4.BeautifulSoup(f.read(), 'xml').find('annotation')
+    objects_class = []
+    objects_coord = []
+    for obj in anno.find_all('object', recursive=False):
+        for bndbox, name in zip(obj.find_all('bndbox', recursive=False), obj.find_all('name', recursive=False)):
+            if name.text in name_index:
+                objects_class.append(name_index[name.text])
+                xmin = float(bndbox.find('xmin').text) - 1
+                ymin = float(bndbox.find('ymin').text) - 1
+                xmax = float(bndbox.find('xmax').text) - 1
+                ymax = float(bndbox.find('ymax').text) - 1
+                objects_coord.append((xmin, ymin, xmax, ymax))
+            else:
+                sys.stderr.write(name.text + ' not in names')
+    size = anno.find('size')
+    return anno.find('filename').text, \
+           (int(size.find('height').text), int(size.find('width').text), int(size.find('depth').text)), \
+           objects_class, \
+           objects_coord
 
 
 def transform_labels(objects_class, objects_coord, classes, cell_width, cell_height, dtype=np.float32):
@@ -331,11 +338,12 @@ def load_image_labels(paths, classes, width, height, cell_width, cell_height, co
         image, imageshape, objects_class, objects_coord = decode_images(paths)
         image = tf.cast(image, tf.float32)
         width_height = tf.cast(imageshape[1::-1], tf.float32)
-        if config.getboolean('data_augmentation_full', 'enable'):
-            image, objects_coord, width_height = tfimage.data_augmentation_full(image, objects_coord, width_height, config)
+        # if config.getboolean('data_augmentation_full', 'enable'):
+        #     image, objects_coord, width_height = tfimage.data_augmentation_full(image, objects_coord, width_height, config)
+
         image, objects_coord = tfimage.resize_image_objects(image, objects_coord, width_height, width, height)
-        if config.getboolean('data_augmentation_resized', 'enable'):
-            image, objects_coord = tfimage.data_augmentation_resized(image, objects_coord, width, height, config)
+        # if config.getboolean('data_augmentation_resized', 'enable'):
+        #     image, objects_coord = tfimage.data_augmentation_resized(image, objects_coord, width, height, config)
         image = tf.clip_by_value(image, 0, 255)
         objects_coord = objects_coord / [width, height, width, height]
 

@@ -100,7 +100,7 @@ class Builder(yolo.Builder):
             self.model = Model(self.output, len(self.labels), self.anchors, training=training)
 
     def create_objectives(self, labels):
-        section = __name__.split('.')[-1]
+        section = __name__.split('.')[-1].split('_')[0]
         self.objectives = Objectives(self.model, *labels)
         with tf.name_scope('weighted_objectives'):
             for key in self.objectives:

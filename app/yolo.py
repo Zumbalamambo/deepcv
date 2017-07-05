@@ -7,11 +7,12 @@ import tensorflow as tf
 import tensorflow.contrib.slim as slim
 
 import app.yolo_detector as yolo_det
-import model.detection.trainer_yolo as train_detector
+import model.detection.trainer_yolo as trainer_yolo
 
 import utils.tfdata as tfdata
 import utils.tfdetection as tfdet
 import utils.tfsys as tfsys
+import utils.dataset.voc as voc
 
 
 def run(config, args):
@@ -19,10 +20,14 @@ def run(config, args):
         train(config, args)
     elif args.task == 'detect':
         detect(config, args)
+    elif args.task == 'voc':
+        voc.convert_to_tfrecord_for_yolo(config)
+    else:
+        print("No this task!")
 
 
 def train(config, args):
-    train_detector.run(config, args)
+    trainer_yolo.run(config, args)
 
 
 def detect(config, args):

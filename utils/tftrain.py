@@ -4,6 +4,7 @@ import inspect
 import numpy as np
 import tensorflow as tf
 
+import model.detection.matchers.yolo_matcher as yolo_matcher
 import utils.tfnet as tfnet
 
 
@@ -35,7 +36,7 @@ def cross_entropy(logits, target, name=None, method=tf.nn.sparse_softmax_cross_e
 def summary_scalar(config):
     try:
         reduce = eval(config.get('summary', 'scalar_reduce'))
-        for t in tfnet.match_tensor(config.get('summary', 'scalar')):
+        for t in yolo_matcher.match_tensor(config.get('summary', 'scalar')):
             name = t.op.name
             if len(t.get_shape()) > 0:
                 t = reduce(t)
@@ -47,7 +48,7 @@ def summary_scalar(config):
 
 def summary_image(config):
     try:
-        for t in tfnet.match_tensor(config.get('summary', 'image')):
+        for t in yolo_matcher.match_tensor(config.get('summary', 'image')):
             name = t.op.name
             channels = t.get_shape()[-1].value
             if channels not in (1, 3, 4):
@@ -59,7 +60,7 @@ def summary_image(config):
 
 def summary_histogram(config):
     try:
-        for t in tfnet.match_tensor(config.get('summary', 'histogram')):
+        for t in yolo_matcher.match_tensor(config.get('summary', 'histogram')):
             tf.summary.histogram(t.op.name, t)
     except (configparser.NoSectionError, configparser.NoOptionError):
         tf.logging.warn(inspect.stack()[0][3] + ' disabled')
