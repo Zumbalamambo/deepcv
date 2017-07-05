@@ -1,7 +1,7 @@
 import numpy as np
 import tensorflow as tf
 
-import model.detection.yolo.inference
+import model.detection.feature_extractor.yolo_v1_tiny_feature_extractor as inference
 import utils.tfsys as tfsys
 
 
@@ -102,5 +102,8 @@ class Builder(object):
         with tf.name_scope('weighted_objectives'):
             for key in self.objectives:
                 tf.add_to_collection(tf.GraphKeys.LOSSES,
-                                     tf.multiply(self.objectives[key], self.config.getfloat(section + '_hparam', key),
-                                                 name='weighted_' + key))
+                                     tf.multiply(self.objectives[key],
+                                                 self.config.getfloat(section + '_hparam', key),
+                                                 name='weighted_' + key
+                                                 )
+                                     )

@@ -21,9 +21,7 @@ EVAL_METRICS_FN_DICT = {
 }
 
 
-def _extract_prediction_tensors(model,
-                                create_input_dict_fn,
-                                ignore_groundtruth=False):
+def _extract_prediction_tensors(model, create_input_dict_fn, ignore_groundtruth=False):
     """Restores the model in a tensorflow session.
 
     Args:
@@ -52,48 +50,41 @@ def _extract_prediction_tensors(model,
         'image_id': input_dict[fields.InputDataFields.source_id],
         'detection_boxes': absolute_detection_boxlist.get(),
         'detection_scores': tf.squeeze(detections['detection_scores'], axis=0),
-        'detection_classes': (
-            tf.squeeze(detections['detection_classes'], axis=0) +
-            label_id_offset),
+        'detection_classes': (tf.squeeze(detections['detection_classes'], axis=0) + label_id_offset),
     }
     if 'detection_masks' in detections:
-        detection_masks = tf.squeeze(detections['detection_masks'],
-                                     axis=0)
-        detection_boxes = tf.squeeze(detections['detection_boxes'],
-                                     axis=0)
+        detection_masks = tf.squeeze(detections['detection_masks'], axis=0)
+        detection_boxes = tf.squeeze(detections['detection_boxes'], axis=0)
         # TODO: This should be done in model's postprocess function ideally.
         detection_masks_reframed = ops.reframe_box_masks_to_image_masks(
             detection_masks,
             detection_boxes,
-            original_image_shape[1], original_image_shape[2])
-        detection_masks_reframed = tf.to_float(tf.greater(detection_masks_reframed,
-                                                          0.5))
+            original_image_shape[1], original_image_shape[2]
+        )
+        detection_masks_reframed = tf.to_float(tf.greater(detection_masks_reframed, 0.5))
 
         tensor_dict['detection_masks'] = detection_masks_reframed
     # load groundtruth fields into tensor_dict
     if not ignore_groundtruth:
-        normalized_gt_boxlist = box_list.BoxList(
-            input_dict[fields.InputDataFields.groundtruth_boxes])
+        normalized_gt_boxlist = box_list.BoxList(input_dict[fields.InputDataFields.groundtruth_boxes])
         gt_boxlist = box_list_ops.scale(normalized_gt_boxlist,
                                         tf.shape(original_image)[1],
-                                        tf.shape(original_image)[2])
+                                        tf.shape(original_image)[2]
+                                        )
         groundtruth_boxes = gt_boxlist.get()
         groundtruth_classes = input_dict[fields.InputDataFields.groundtruth_classes]
         tensor_dict['groundtruth_boxes'] = groundtruth_boxes
         tensor_dict['groundtruth_classes'] = groundtruth_classes
         tensor_dict['area'] = input_dict[fields.InputDataFields.groundtruth_area]
-        tensor_dict['is_crowd'] = input_dict[
-            fields.InputDataFields.groundtruth_is_crowd]
-        tensor_dict['difficult'] = input_dict[
-            fields.InputDataFields.groundtruth_difficult]
+        tensor_dict['is_crowd'] = input_dict[fields.InputDataFields.groundtruth_is_crowd]
+        tensor_dict['difficult'] = input_dict[fields.InputDataFields.groundtruth_difficult]
+
         if 'detection_masks' in tensor_dict:
-            tensor_dict['groundtruth_instance_masks'] = input_dict[
-                fields.InputDataFields.groundtruth_instance_masks]
+            tensor_dict['groundtruth_instance_masks'] = input_dict[fields.InputDataFields.groundtruth_instance_masks]
     return tensor_dict
 
 
-def evaluate(create_input_dict_fn, create_model_fn, eval_config, categories,
-             checkpoint_dir, eval_dir):
+def evaluate(create_input_dict_fn, create_model_fn, eval_config, categories, checkpoint_dir, eval_dir):
     """Evaluation function for detection models.
 
     Args:
@@ -109,13 +100,13 @@ def evaluate(create_input_dict_fn, create_model_fn, eval_config, categories,
     model = create_model_fn()
 
     if eval_config.ignore_groundtruth and not eval_config.export_path:
-        logging.fatal('If ignore_groundtruth=True then an export_path is '
-                      'required. Aborting!!!')
+        logging.fatal('If ignore_groundtruth=True then an export_path is required. Aborting!!!')
 
     tensor_dict = _extract_prediction_tensors(
         model=model,
         create_input_dict_fn=create_input_dict_fn,
-        ignore_groundtruth=eval_config.ignore_groundtruth)
+        ignore_groundtruth=eval_config.ignore_groundtruth
+    )
 
     def _process_batch(tensor_dict, sess, batch_index, counters, update_op):
         """Evaluates tensors in tensor_dict, visualizing the first K examples.
@@ -140,8 +131,7 @@ def evaluate(create_input_dict_fn, create_model_fn, eval_config, categories,
         """
         if batch_index >= eval_config.num_visualizations:
             if 'original_image' in tensor_dict:
-                tensor_dict = {k: v for (k, v) in tensor_dict.iteritems()
-                               if k != 'original_image'}
+                tensor_dict = {k: v for (k, v) in tensor_dict.iteritems() if k != 'original_image'}
         try:
             (result_dict, _) = sess.run([tensor_dict, update_op])
             counters['success'] += 1
@@ -163,8 +153,7 @@ def evaluate(create_input_dict_fn, create_model_fn, eval_config, categories,
         eval_metric_fn_key = eval_config.metrics_set
         if eval_metric_fn_key not in EVAL_METRICS_FN_DICT:
             raise ValueError('Metric not found: {}'.format(eval_metric_fn_key))
-        return EVAL_METRICS_FN_DICT[eval_metric_fn_key](result_lists,
-                                                        categories=categories)
+        return EVAL_METRICS_FN_DICT[eval_metric_fn_key](result_lists, categories=categories)
 
     variables_to_restore = tf.global_variables()
     global_step = slim.get_or_create_global_step()
@@ -195,4 +184,5 @@ def evaluate(create_input_dict_fn, create_model_fn, eval_config, categories,
             None),
         master=eval_config.eval_master,
         save_graph=eval_config.save_graph,
-        save_graph_dir=(eval_dir if eval_config.save_graph else ''))
+        save_graph_dir=(eval_dir if eval_config.save_graph else '')
+    )

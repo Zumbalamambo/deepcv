@@ -1,19 +1,17 @@
 import importlib
 import os
-import sys
 
 import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
 import tensorflow.contrib.slim as slim
 
-import model.detection.train_detector as train_detector
-import model.detection.yolo_detector as yolo_det
+import app.yolo_detector as yolo_det
+import model.detection.trainer_yolo as train_detector
+
 import utils.tfdata as tfdata
 import utils.tfdetection as tfdet
 import utils.tfsys as tfsys
-
-sys.path.append('..')
 
 
 def run(config, args):
@@ -41,7 +39,7 @@ def detect(config, args):
     file_path = os.path.expanduser(os.path.expandvars(args.file))
     ext_name = os.path.splitext(os.path.basename(file_path))[1]
 
-    yolo = importlib.import_module('model.detection.' + model)
+    yolo = importlib.import_module('model.detection.builders.' + model + '_builder')
 
     with tf.Session(config=tf.ConfigProto(allow_soft_placement=True)) as sess:
 
@@ -83,8 +81,14 @@ def detect(config, args):
             feed_dict = dict([(ph, np.expand_dims(d, 0)) for ph, d in zip(label_placeholder, _labels)])
             feed_dict[image_placeholder] = np.expand_dims(_image_std, 0)
 
-            _ = yolo_det.DetectImageManual(sess, builder.model, builder.labels, _image_rgb, _labels,
-                                           builder.model.cell_width, builder.model.cell_height, feed_dict)
+            _ = yolo_det.DetectImageManual(sess,
+                                           builder.model,
+                                           builder.labels,
+                                           _image_rgb,
+                                           _labels,
+                                           builder.model.cell_width,
+                                           builder.model.cell_height,
+                                           feed_dict)
             plt.show()
 
         else:
@@ -95,7 +99,9 @@ def detect(config, args):
 
             global_step = tf.contrib.framework.get_or_create_global_step()
 
+            print(tfsys.get_logdir(config))
             model_path = tf.train.latest_checkpoint(tfsys.get_logdir(config))
+
             slim.assign_from_checkpoint_fn(model_path, tf.global_variables())(sess)
 
             tf.logging.info('global_step=%d' % sess.run(global_step))

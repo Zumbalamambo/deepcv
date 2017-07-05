@@ -50,11 +50,12 @@ def get_logdir(config):
     model = config.get('config', 'model')
     inference = config.get(model, 'inference')
     name = config.get('dataset', 'name')
-    return os.path.join(basedir, 'cache', 'log', model, inference, name)
+    # eg. cache/weight/yolo2/yolo2_darknet_coco
+    return os.path.join(basedir, 'cache', 'weight', model, model+'_'+inference+'_'+name)
 
 
 def get_label(config):
     basedir = os.path.expanduser(os.path.expandvars(config.get('config', 'basedir')))
     label_name = config.get('dataset', 'name')
 
-    return os.path.join(basedir, 'config', 'label', label_name)
+    return os.path.join(basedir, 'config', 'label', label_name+'.csv')

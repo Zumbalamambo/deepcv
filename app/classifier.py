@@ -81,7 +81,7 @@ def classify_image_local(config, args):
         for i in range(5):
             index = sorted_id[i]
             top5_result.append({'name': names[index + 1], 'probability': probablities[index] * 100})
-            if args.print:
+            if args.terminal:
                 print('Probablity %.2f%% ==> [%s]' % ((probablities[index] * 100), names[index + 1]))
 
         if args.json:
@@ -145,7 +145,7 @@ def classify_iamge_remote(config, args):
         for i in range(5):
             index = sorted_id[i]
             top5_result.append({'name': names[index + 1], 'probability': probablities[index] * 100})
-            if args.print:
+            if args.terminal:
                 print('Probablity %.2f%% ==> [%s]' % ((probablities[index] * 100), names[index + 1]))
 
         if args.json:

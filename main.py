@@ -20,7 +20,7 @@ def main():
     parser.add_argument('--file_url', default=None, help='remote image path')
     parser.add_argument('--gpu', type=bool, default=False, help='')
     # result type
-    parser.add_argument('--print', type=bool, default=True, help='')
+    parser.add_argument('--terminal', type=bool, default=True, help='')
     parser.add_argument('--show', type=bool, default=False, help='')
     parser.add_argument('--json', type=bool, default=False, help='')
     # prepare data
@@ -29,7 +29,9 @@ def main():
     args = parser.parse_args()
     config = configparser.ConfigParser()
     tfsys.load_config(config, args.config)
+
     start_time = time.time()
+
     if args.app == 'dataset':
         tfdata.download_convert(config, args)
     elif args.app == 'classifier':

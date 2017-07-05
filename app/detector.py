@@ -70,9 +70,9 @@ def detect_image_local(config, args):
         num_detections = detection_graph.get_tensor_by_name('num_detections:0')
 
         (boxes, scores, classes, num_detections) = sess.run([boxes, scores, classes, num_detections],
-                                                                feed_dict={image_tensor: image})
+                                                            feed_dict={image_tensor: image})
     result = []
-    if args.print:
+    if args.terminal:
         pass
 
     if args.json:

@@ -2,6 +2,11 @@ import importlib
 
 import numpy as np
 
+_DARKNET_DOWNSAMPLING = (2 ** 5, 2 ** 5)
+DARKNET_DOWNSAMPLING = (2 ** 5, 2 ** 5)
+_TINY_DOWNSAMPLING = (2 ** 5, 2 ** 5)
+TINY_DOWNSAMPLING = (2 ** 5, 2 ** 5)
+
 
 def iou(xy_min1, xy_max1, xy_min2, xy_max2):
     assert (not np.isnan(xy_min1).any())
@@ -39,9 +44,7 @@ def non_max_suppress(conf, xy_min, xy_max, threshold, threshold_iou):
 
 def get_downsampling(config):
     model = config.get('config', 'model')
-    # m_infer = 'model.detection.'+model+'.inference'
-    print('name: ' + model)
-    return getattr(importlib.import_module('model.detection.' + model + '.inference'),
+    return getattr(importlib.import_module('utils.tfdetection'),
                    config.get(model, 'inference').upper() + '_DOWNSAMPLING')
 
 

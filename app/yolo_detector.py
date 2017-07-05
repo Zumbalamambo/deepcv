@@ -1,13 +1,15 @@
 import itertools
 
-import cv2
+# import cv2
 import matplotlib.patches as patches
 import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
 from PIL import Image
 
-from utils import detection as tfdet, detection as tfimage, detection as tfvisualize
+import utils.tfimage as tfimage
+import utils.tfdetection as tfdet
+import utils.tfvisualize as tfvisualize
 
 
 def detect_image(sess, model, names, image_placeholder, image_path, args):
@@ -46,38 +48,38 @@ def detect_image(sess, model, names, image_placeholder, image_path, args):
     ax.set_yticks([])
 
 
-def detect_video(sess, model, names, image_placeholder, video_path, args):
-    _, height, width, _ = image_placeholder.get_shape().as_list()
-
-    video_capture = cv2.VideoCapture(video_path)
-    try:
-        while True:
-            ret, frame_bgr = video_capture.read()
-            assert ret, 'Error video capture'
-            image_height, image_width, _ = frame_bgr.shape
-            scale = [image_width / model.cell_width, image_height / model.cell_height]
-            frame_rgb = cv2.cvtColor(frame_bgr, cv2.COLOR_BGR2RGB)
-            frame_std = np.expand_dims(
-                tfimage.per_image_standardization(cv2.resize(frame_rgb, (width, height))).astype(np.float32), 0)
-
-            feed_dict = {image_placeholder: frame_std}
-            tensors = [model.conf, model.xy_min, model.xy_max]
-            conf, xy_min, xy_max = sess.run([tf.check_numerics(t, t.op.name) for t in tensors], feed_dict=feed_dict)
-
-            boxes = tfdet.non_max_suppress(conf[0], xy_min[0], xy_max[0], args.threshold, args.threshold_iou)
-
-            for _conf, _xy_min, _xy_max in boxes:
-                index = np.argmax(_conf)
-                if _conf[index] > args.threshold:
-                    _xy_min = (_xy_min * scale).astype(np.int)
-                    _xy_max = (_xy_max * scale).astype(np.int)
-                    cv2.rectangle(frame_bgr, tuple(_xy_min), tuple(_xy_max), (255, 0, 255), 3)
-                    cv2.putText(frame_bgr, names[index] + '(%1.f%%)' % (_conf[index] * 100), tuple(_xy_min),
-                                cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
-            cv2.imshow('Video Detection', frame_bgr)
-            cv2.waitKey(1)
-    finally:
-        cv2.destroyAllWindows()
+# def detect_video(sess, model, names, image_placeholder, video_path, args):
+#     _, height, width, _ = image_placeholder.get_shape().as_list()
+#
+#     video_capture = cv2.VideoCapture(video_path)
+#     try:
+#         while True:
+#             ret, frame_bgr = video_capture.read()
+#             assert ret, 'Error video capture'
+#             image_height, image_width, _ = frame_bgr.shape
+#             scale = [image_width / model.cell_width, image_height / model.cell_height]
+#             frame_rgb = cv2.cvtColor(frame_bgr, cv2.COLOR_BGR2RGB)
+#             frame_std = np.expand_dims(
+#                 tfimage.per_image_standardization(cv2.resize(frame_rgb, (width, height))).astype(np.float32), 0)
+#
+#             feed_dict = {image_placeholder: frame_std}
+#             tensors = [model.conf, model.xy_min, model.xy_max]
+#             conf, xy_min, xy_max = sess.run([tf.check_numerics(t, t.op.name) for t in tensors], feed_dict=feed_dict)
+#
+#             boxes = tfdet.non_max_suppress(conf[0], xy_min[0], xy_max[0], args.threshold, args.threshold_iou)
+#
+#             for _conf, _xy_min, _xy_max in boxes:
+#                 index = np.argmax(_conf)
+#                 if _conf[index] > args.threshold:
+#                     _xy_min = (_xy_min * scale).astype(np.int)
+#                     _xy_max = (_xy_max * scale).astype(np.int)
+#                     cv2.rectangle(frame_bgr, tuple(_xy_min), tuple(_xy_max), (255, 0, 255), 3)
+#                     cv2.putText(frame_bgr, names[index] + '(%1.f%%)' % (_conf[index] * 100), tuple(_xy_min),
+#                                 cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
+#             cv2.imshow('Video Detection', frame_bgr)
+#             cv2.waitKey(1)
+#     finally:
+#         cv2.destroyAllWindows()
 
 
 class DetectImageManual(object):

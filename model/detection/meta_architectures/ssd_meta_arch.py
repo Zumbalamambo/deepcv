@@ -217,14 +217,11 @@ class SSDMetaArch(model.DetectionModel):
             3) feature_maps: a list of tensors where the ith tensor has shape
               [batch, height_i, width_i, depth_i].
         """
-        with tf.variable_scope(None, self._extract_features_scope,
-                               [preprocessed_inputs]):
-            feature_maps = self._feature_extractor.extract_features(
-                preprocessed_inputs)
+        with tf.variable_scope(None, self._extract_features_scope, [preprocessed_inputs]):
+            feature_maps = self._feature_extractor.extract_features(preprocessed_inputs)
         feature_map_spatial_dims = self._get_feature_map_spatial_dims(feature_maps)
         self._anchors = self._anchor_generator.generate(feature_map_spatial_dims)
-        (box_encodings, class_predictions_with_background
-         ) = self._add_box_predictions_to_feature_maps(feature_maps)
+        (box_encodings, class_predictions_with_background) = self._add_box_predictions_to_feature_maps(feature_maps)
         predictions_dict = {
             'box_encodings': box_encodings,
             'class_predictions_with_background': class_predictions_with_background,

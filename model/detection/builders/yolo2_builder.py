@@ -4,8 +4,8 @@ import numpy as np
 import pandas as pd
 import tensorflow as tf
 
-import model.detection.yolo as yolo
-import model.detection.yolo2.inference
+import model.detection.builders.yolo_builder as yolo
+import model.detection.feature_extractor.yolo_v2_darknet_feature_extractor as inference
 import utils.tfsys as tfsys
 
 
@@ -82,7 +82,7 @@ class Objectives(dict):
 
 class Builder(yolo.Builder):
     def __init__(self, args, config):
-        section = __name__.split('.')[-1]
+        section = __name__.split('.')[-1].split('_')[0]
         self.args = args
         self.config = config
         with open(tfsys.get_label(config)) as f:

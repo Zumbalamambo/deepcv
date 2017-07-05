@@ -78,6 +78,12 @@ $ PIPELINE_CONFIG_PATH = config/train_detection/faster_rcnn_resnet101_voc007.con
 $ python main.py  --log_dir=cache/log/faster_rcnn/resnet/voc007
                   --pipeline_config_path = ${PIPELINE_CONFIG_PATH}
 ```
+## Visualize 
+### visualize training procedure
+```shell
+$ LOGDIR = cache/log/ssd/mobilenet_v1/pet
+$tensorboard --logdir=${LOGDIR}
+```
 ## Pre-trained Models
 
 Model | TF-Slim File | Checkpoint | Top-1 Accuracy| Top-5 Accuracy |

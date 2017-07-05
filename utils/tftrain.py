@@ -4,7 +4,7 @@ import inspect
 import numpy as np
 import tensorflow as tf
 
-import detection.tfnet as tfnet
+import utils.tfnet as tfnet
 
 
 def minibatches(inputs=None, targets=None, batch_size=None, shuffle=False):
