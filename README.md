@@ -21,7 +21,7 @@ Can we make computer vision like our eyes?
 ```shell
 $ python main.py --config=config/dataset/pascal_voc.cfg
                  --app=dataset
-                 --dataset_name = voc
+                 --dataset_name=voc
 ```
 
 ## Classification
