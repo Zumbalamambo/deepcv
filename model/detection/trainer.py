@@ -23,8 +23,8 @@ import utils.detection.ops as util_ops
 slim = tf.contrib.slim
 
 
-def _create_input_queue(batch_size_per_clone, create_tensor_dict_fn, batch_queue_capacity, num_batch_queue_threads,
-                        prefetch_queue_capacity, data_augmentation_options=None):
+def _create_input_queue(batch_size_per_clone, create_tensor_dict_fn, batch_queue_capacity,
+                        num_batch_queue_threads, prefetch_queue_capacity, data_augmentation_options=None):
     """Sets up reader, prefetcher and returns input queue.
 
     Args:

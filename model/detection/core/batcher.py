@@ -69,7 +69,7 @@ class BatchQueue(object):
         # print(static_shapes)
         # Remember runtime shapes to unpad tensors after batching.
         runtime_shapes = collections.OrderedDict(
-            {(key, 'runtime_shapes'): tf.shape(tensor) for key, tensor in tensor_dict.items()}
+            {(key, 'runtime_shapes'): tf.shape(tensor) for key, tensor in tensor_dict.iteritems()}
         )
         # print(runtime_shapes)
 

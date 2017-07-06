@@ -9,7 +9,7 @@ import numpy as np
 import tensorflow as tf
 import utils.detection.label_map_util as label_map_util
 import utils.detection.object_detection_evaluation as object_detection_evaluation
-from object_detection.utils import visualization_utils as vis_utils
+import utils.detection.visualization_utils as vis_utils
 
 slim = tf.contrib.slim
 

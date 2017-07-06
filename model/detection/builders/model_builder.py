@@ -18,6 +18,14 @@ import model.detection.meta_architectures.rfcn_meta_arch as rfcn_meta_arch
 import model.detection.meta_architectures.ssd_meta_arch as ssd_meta_arch
 import model.detection.protos.model_pb2 as model_pb2
 
+# A map of names to YOLO feature extractors.
+YOLO_FEATURE_EXTRACTOR_CLASS_MAP = {
+    'yolo_tiny': ssd_mobilenet_v1_feature_extractor.SSDMobileNetV1FeatureExtractor,
+    'yolo_darknet': ssd_inception_v2_feature_extractor.SSDInceptionV2FeatureExtractor,
+    'yolo2_tiny': ssd_mobilenet_v1_feature_extractor.SSDMobileNetV1FeatureExtractor,
+    'yolo2_darknet': ssd_inception_v2_feature_extractor.SSDInceptionV2FeatureExtractor,
+}
+
 # A map of names to SSD feature extractors.
 SSD_FEATURE_EXTRACTOR_CLASS_MAP = {
     'ssd_mobilenet_v1': ssd_mobilenet_v1_feature_extractor.SSDMobileNetV1FeatureExtractor,
@@ -60,6 +68,32 @@ def build(model_config, is_training):
     raise ValueError('Unknown meta architecture: {}'.format(meta_architecture))
 
 
+def _build_yolo_feature_extractor(feature_extractor_config, is_training, reuse_weights=None):
+    """Builds a yolo_meta_arch.YOLOFeatureExtractor based on config.
+
+    Args:
+      feature_extractor_config: A YOLOFeatureExtractor proto config from yolo.proto.
+      is_training: True if this feature extractor is being built for training.
+      reuse_weights: if the feature extractor should reuse weights.
+
+    Returns:
+      yolo_meta_arch.YOLOFeatureExtractor based on config.
+
+    Raises:
+      ValueError: On invalid feature extractor type.
+    """
+    feature_type = feature_extractor_config.type
+    depth_multiplier = feature_extractor_config.depth_multiplier
+    min_depth = feature_extractor_config.min_depth
+    conv_hyperparams = hyperparams_builder.build(feature_extractor_config.conv_hyperparams)
+
+    if feature_type not in YOLO_FEATURE_EXTRACTOR_CLASS_MAP:
+        raise ValueError('Unknown ssd feature_extractor: {}'.format(feature_type))
+
+    feature_extractor_class = YOLO_FEATURE_EXTRACTOR_CLASS_MAP[feature_type]
+    return feature_extractor_class(depth_multiplier, min_depth, conv_hyperparams, reuse_weights)
+
+
 def _build_ssd_feature_extractor(feature_extractor_config, is_training, reuse_weights=None):
     """Builds a ssd_meta_arch.SSDFeatureExtractor based on config.
 
@@ -78,7 +112,6 @@ def _build_ssd_feature_extractor(feature_extractor_config, is_training, reuse_we
     depth_multiplier = feature_extractor_config.depth_multiplier
     min_depth = feature_extractor_config.min_depth
     conv_hyperparams = hyperparams_builder.build(feature_extractor_config.conv_hyperparams, is_training)
-
 
     if feature_type not in SSD_FEATURE_EXTRACTOR_CLASS_MAP:
         raise ValueError('Unknown ssd feature_extractor: {}'.format(feature_type))
@@ -112,7 +145,7 @@ def _build_ssd_model(ssd_config, is_training):
     anchor_generator = anchor_generator_builder.build(ssd_config.anchor_generator)
     image_resizer_fn = image_resizer_builder.build(ssd_config.image_resizer)
     non_max_suppression_fn, score_conversion_fn = post_processing_builder.build(ssd_config.post_processing)
-    (classification_loss, localization_loss, classification_weight, localization_weight,hard_example_miner) = \
+    (classification_loss, localization_loss, classification_weight, localization_weight, hard_example_miner) = \
         losses_builder.build(ssd_config.loss)
     normalize_loss_by_num_matches = ssd_config.normalize_loss_by_num_matches
 
