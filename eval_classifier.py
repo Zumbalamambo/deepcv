@@ -5,9 +5,9 @@ from __future__ import print_function
 import math
 
 import tensorflow as tf
-from datasets import dataset_factory
-from nets import nets_factory
-from preprocessing import preprocessing_factory
+from utils.dataset import dataset_factory
+from model.classification import classifier_factory
+from utils.preprocessing import preprocessing_factory
 
 slim = tf.contrib.slim
 
@@ -83,7 +83,7 @@ def main(_):
         ####################
         # Select the model #
         ####################
-        network_fn = nets_factory.get_network_fn(
+        network_fn = classifier_factory.get_network_fn(
             FLAGS.model_name,
             num_classes=(dataset.num_classes - FLAGS.labels_offset),
             is_training=False)
