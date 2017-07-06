@@ -4,7 +4,7 @@ from __future__ import print_function
 
 import tensorflow as tf
 
-import model.base.classifier_factory as classifier_factory
+import model.base.net_factory as classifier_factory
 import model.deployment.model_deploy as model_deploy
 import utils.preprocessing.preprocessing_factory as preprocessing_factory
 import utils.tfdata as tfdata

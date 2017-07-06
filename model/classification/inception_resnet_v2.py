@@ -11,7 +11,7 @@ from __future__ import division
 from __future__ import print_function
 
 import tensorflow as tf
-import model.base.inception_resnet_v2_base as inception_resnet_v2_base
+from model.base.inception_resnet_v2 import inception_resnet_v2_base
 slim = tf.contrib.slim
 
 

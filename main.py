@@ -4,7 +4,6 @@ import time
 
 import app.classifier as classifier
 import app.detector as detector
-import app.yolo as yolo
 import utils.tfdata as tfdata
 import utils.tfsys as tfsys
 
@@ -38,8 +37,6 @@ def main():
         classifier.run(config, args)
     elif args.app == 'detector':
         detector.run(config, args)
-    elif args.app == 'yolo':
-        yolo.run(config, args)
     else:
         print("No this app!")
 
