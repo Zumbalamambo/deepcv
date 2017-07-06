@@ -39,10 +39,59 @@ from __future__ import print_function
 import tensorflow as tf
 
 import model.base.resnet_util as resnet_util
-from model.base.resnet_v2 import bottleneck
-from model.base.resnet_v2 import resnet_v2_block
+
 slim = tf.contrib.slim
 resnet_arg_scope = resnet_util.resnet_arg_scope
+
+
+@slim.add_arg_scope
+def bottleneck(inputs, depth, depth_bottleneck, stride, rate=1,
+               outputs_collections=None, scope=None):
+    """Bottleneck residual unit variant with BN before convolutions.
+
+    This is the full preactivation residual unit variant proposed in [2]. See
+    Fig. 1(b) of [2] for its definition. Note that we use here the bottleneck
+    variant which has an extra bottleneck layer.
+
+    When putting together two consecutive ResNet blocks that use this unit, one
+    should use stride = 2 in the last unit of the first block.
+
+    Args:
+      inputs: A tensor of size [batch, height, width, channels].
+      depth: The depth of the ResNet unit output.
+      depth_bottleneck: The depth of the bottleneck layers.
+      stride: The ResNet unit's stride. Determines the amount of downsampling of
+        the units output compared to its input.
+      rate: An integer, rate for atrous convolution.
+      outputs_collections: Collection to add the ResNet unit output.
+      scope: Optional variable_scope.
+
+    Returns:
+      The ResNet unit's output.
+    """
+    with tf.variable_scope(scope, 'bottleneck_v2', [inputs]) as sc:
+        depth_in = slim.utils.last_dimension(inputs.get_shape(), min_rank=4)
+        preact = slim.batch_norm(inputs, activation_fn=tf.nn.relu, scope='preact')
+        if depth == depth_in:
+            shortcut = resnet_util.subsample(inputs, stride, 'shortcut')
+        else:
+            shortcut = slim.conv2d(preact, depth, [1, 1], stride=stride,
+                                   normalizer_fn=None, activation_fn=None,
+                                   scope='shortcut')
+
+        residual = slim.conv2d(preact, depth_bottleneck, [1, 1], stride=1,
+                               scope='conv1')
+        residual = resnet_util.conv2d_same(residual, depth_bottleneck, 3, stride,
+                                            rate=rate, scope='conv2')
+        residual = slim.conv2d(residual, depth, [1, 1], stride=1,
+                               normalizer_fn=None, activation_fn=None,
+                               scope='conv3')
+
+        output = shortcut + residual
+
+        return slim.utils.collect_named_outputs(outputs_collections,
+                                                sc.original_name_scope,
+                                                output)
 
 
 def resnet_v2(inputs,
@@ -154,6 +203,33 @@ def resnet_v2(inputs,
                 if num_classes is not None:
                     end_points['predictions'] = slim.softmax(logits, scope='predictions')
                 return logits, end_points
+
+
+resnet_v2.default_image_size = 224
+
+
+def resnet_v2_block(scope, base_depth, num_units, stride):
+    """Helper function for creating a resnet_v2 bottleneck block.
+
+    Args:
+      scope: The scope of the block.
+      base_depth: The depth of the bottleneck layer for each unit.
+      num_units: The number of units in the block.
+      stride: The stride of the block, implemented as a stride in the last unit.
+        All other units have stride=1.
+
+    Returns:
+      A resnet_v2 bottleneck block.
+    """
+    return resnet_util.Block(scope, bottleneck, [{
+        'depth': base_depth * 4,
+        'depth_bottleneck': base_depth,
+        'stride': 1
+    }] * (num_units - 1) + [{
+        'depth': base_depth * 4,
+        'depth_bottleneck': base_depth,
+        'stride': stride
+    }])
 
 
 resnet_v2.default_image_size = 224

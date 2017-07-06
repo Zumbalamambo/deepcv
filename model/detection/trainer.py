@@ -151,11 +151,6 @@ def train(create_tensor_dict_fn, create_model_fn, train_config, master, task, nu
             global_step = slim.create_global_step()
 
         with tf.device(deploy_config.inputs_device()):
-            # print(train_config.batch_size)
-            # print(num_clones)
-            # print(train_config.batch_queue_capacity)
-            # print(train_config.num_batch_queue_threads)
-            # print(train_config.prefetch_queue_capacity)
 
             input_queue = _create_input_queue(train_config.batch_size // num_clones,
                                               create_tensor_dict_fn,

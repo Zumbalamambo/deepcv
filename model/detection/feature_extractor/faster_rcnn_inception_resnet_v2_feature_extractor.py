@@ -12,7 +12,7 @@ from __future__ import print_function
 
 import tensorflow as tf
 
-import model.classification.inception_resnet_v2 as inception_resnet_v2
+import model.base.inception_resnet_v2 as inception_resnet_v2
 import model.detection.meta_architectures.faster_rcnn_meta_arch as faster_rcnn_meta_arch
 import utils.detection.variables_helper as variables_helper
 

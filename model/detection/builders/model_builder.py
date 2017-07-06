@@ -13,6 +13,7 @@ import model.detection.feature_extractor.faster_rcnn_inception_resnet_v2_feature
 import model.detection.feature_extractor.faster_rcnn_resnet_v1_feature_extractor as frcnn_resnet_v1
 import model.detection.feature_extractor.ssd_inception_v2_feature_extractor as ssd_inception_v2_feature_extractor
 import model.detection.feature_extractor.ssd_mobilenet_v1_feature_extractor as ssd_mobilenet_v1_feature_extractor
+import model.detection.feature_extractor.yolo_v2_darknet_feature_extractor as yolo_v2_darknet_feature_extractor
 import model.detection.meta_architectures.faster_rcnn_meta_arch as faster_rcnn_meta_arch
 import model.detection.meta_architectures.rfcn_meta_arch as rfcn_meta_arch
 import model.detection.meta_architectures.ssd_meta_arch as ssd_meta_arch
@@ -20,10 +21,7 @@ import model.detection.protos.model_pb2 as model_pb2
 
 # A map of names to YOLO feature extractors.
 YOLO_FEATURE_EXTRACTOR_CLASS_MAP = {
-    'yolo_tiny': ssd_mobilenet_v1_feature_extractor.SSDMobileNetV1FeatureExtractor,
-    'yolo_darknet': ssd_inception_v2_feature_extractor.SSDInceptionV2FeatureExtractor,
-    'yolo2_tiny': ssd_mobilenet_v1_feature_extractor.SSDMobileNetV1FeatureExtractor,
-    'yolo2_darknet': ssd_inception_v2_feature_extractor.SSDInceptionV2FeatureExtractor,
+    'yolo2_darknet': yolo_v2_darknet_feature_extractor.YOLOV2DarknetFeatureExtractor
 }
 
 # A map of names to SSD feature extractors.

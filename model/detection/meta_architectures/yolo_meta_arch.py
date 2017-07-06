@@ -1,0 +1,2 @@
+class SSDFeatureExtractor(object):
+    pass

@@ -2,10 +2,10 @@ import functools
 
 import tensorflow as tf
 
-import model.cllassification.inception as inception
-import model.cllassification.mobilenet_v1 as mobilenet_v1
-import model.cllassification.resnet_v1 as resnet_v1
-import model.cllassification.vgg as vgg
+import model.base.inception as inception
+import model.base.mobilenet_v1 as mobilenet_v1
+import model.base.resnet_v1 as resnet_v1
+import model.base.vgg as vgg
 
 slim = tf.contrib.slim
 
